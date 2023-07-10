@@ -1,0 +1,21 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+.hoveredPiece:hover{
+
+    transform: scale(1.25, 1.25);
+}
+
+.clicked{
+    border: 2px solid rgb(36, 1, 1);
+}
+
+.moveable{
+    border: 2px solid rgb(11, 224, 61);
+}
+
+.capturable{
+    border: 2px solid rgb(254, 11, 11);
+}

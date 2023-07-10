@@ -1,0 +1,13 @@
+CREATE DATABASE chess_platform;
+
+use chess_platform;
+
+CREATE TABLE Players(
+	ID int NOT NULL AUTO_INCREMENT,
+	Name varchar(255) NOT NULL,
+	Email varchar(255) NOT NULL,
+	password varchar(255) NOT NULL,
+	PRIMARY KEY(ID)
+);
+
+drop table players;
