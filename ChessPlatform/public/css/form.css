@@ -1,0 +1,89 @@
+/*No default margin, padding, font-family and boxsizing*/
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body{
+    background-color: #6d7f7f;
+}
+
+.main-registration-form{
+
+    background-color:#e7ded8;
+    box-shadow: 3px 3px 14px 3px;
+
+    width: 50%;
+
+    border-radius: 13px;
+
+    position: relative;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+}
+
+.form-heading, .form-login{
+    margin: 0;
+    padding: 5% 0;
+    text-align: center;
+}
+
+input{
+    display: block;
+    border: 1px solid black;
+    border-radius: 10px;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    font-size: 20px;
+
+    margin-top: 3%;
+}
+
+.inputs{
+    padding: 15px;
+    width: 80%;
+}
+
+.form-forget-password, .form-message{
+
+    display: block;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    padding: 15px;
+    
+    width: 80%;
+
+}
+.form-message{
+    color: red;
+}
+
+.form-forget-password a{
+    color: black;
+    font-weight: bolder;
+}
+
+.submit{
+    background-color: #9face6;
+    border-radius: 8px;
+    font-size: 28px;
+    font-weight: bolder;
+    padding: 8px;
+
+    width: 40%;
+    color: white;
+}
+
+.form-login a{
+    color: black;
+    font-weight: bolder;
+}

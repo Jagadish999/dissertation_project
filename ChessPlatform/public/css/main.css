@@ -1,0 +1,42 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body{
+    background-color: #6d7f7f;
+}
+
+.main-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+
+    height: 100%;
+}
+
+.side-nav{
+    background-color: rgb(49, 234, 129);
+    width: 15%;
+    height: 100%;
+}
+.content{
+    background-color: rgb(33, 130, 130);
+    width: 70%;
+    height: 100%;
+}
+
+.side-nav li{
+    margin-top: 12px;
+    padding: 15px;
+    list-style: none;
+    border: 3px solid black;
+}
+
+.side-nav li a{
+    color: black;
+    padding: 12px; 
+    text-decoration: none;
+}
