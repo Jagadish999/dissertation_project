@@ -10,21 +10,20 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ChessGamePlayApi implements ShouldBroadcast
+class MatchMaker implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $data;
-    public $white;
-    public $black;
+    public $message;
+    public $userId;
+
     /**
      * Create a new event instance.
      */
-    public function __construct($data, $white, $black)
+    public function __construct($message, $userId)
     {
-        $this->data = $data;
-        $this->white = $white;
-        $this->black = $black;
+        $this->message = $message;
+        $this->userId = $userId;
     }
 
     /**
@@ -34,6 +33,6 @@ class ChessGamePlayApi implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('GamePlayChannel' . $this->white . $this->black);
+        return  new Channel('MatchPlayerChannel' . $this->userId);
     }
 }
