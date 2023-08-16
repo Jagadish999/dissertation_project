@@ -1,42 +1,56 @@
 *{
     margin: 0;
     padding: 0;
+
     box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
 }
 
 body{
-    background-color: #6d7f7f;
+    background-color: #dedede;
 }
 
 .main-container{
+
+    width: 100%;
+    height: 100%;
+
     display: flex;
     flex-direction: row;
-    justify-content: space-evenly;
+    flex-wrap: wrap;
+    justify-content: space-between;
 
-    height: 100%;
 }
 
 .side-nav{
-    background-color: rgb(49, 234, 129);
-    width: 15%;
+    width: 20%;
     height: 100%;
+
+    background-color: #454545;
 }
+
 .content{
-    background-color: rgb(33, 130, 130);
     width: 80%;
     height: 100%;
 }
 
-.side-nav li{
-    margin-top: 12px;
-    padding: 15px;
+.side-nav nav li{
+    
     list-style: none;
-    border: 3px solid black;
 }
 
-.side-nav li a{
-    color: black;
-    padding: 12px; 
+.side-nav nav li a{
+
+    padding: 20px;
+
+    display: block;
+    
     text-decoration: none;
+    color: white;
+    font-weight: bolder;
+    font-size: 30px;
+}
+
+.side-nav nav li a:hover{
+    background-color: #1a1a1a;
 }

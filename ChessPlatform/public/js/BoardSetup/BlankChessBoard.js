@@ -25,7 +25,7 @@ class BlankChessBoard{
             const chessBoard = this.boardSquare(boardHeight, boardWidth, boardClassName, backgroundColor);
             chessBoard.style.display = 'flex';
             chessBoard.style.flexDirection = 'column';
-            chessBoard.style.flexWrap = 'wrap';
+            chessBoard.style.flexWrap = 'nowrap';
     
             //sqColor for color variation
             let sqColor;

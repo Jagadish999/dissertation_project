@@ -77,7 +77,9 @@ class RegisterAndLoginController extends Controller
     }
 
     function userLogOut(){
+
         if(Session::has('userId')){
+            
             Session::pull('userId');
             return redirect('login');
         }

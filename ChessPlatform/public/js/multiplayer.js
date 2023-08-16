@@ -16,7 +16,7 @@ function playerSearched(){
 
 function setup(f, c){
 
-    const chessBoardHolder = document.getElementsByClassName('chessboard')[0];
+    const chessBoardHolder = document.getElementsByClassName('brdContent')[0];
     const chessBoard = currentBoardPosition(f, c);
 
     while(chessBoardHolder.firstChild){

@@ -1,0 +1,119 @@
+.play-nav-list{
+    background-color: #1a1a1a;
+}
+.content{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.brdContent{
+    width: 60%;
+    height: 100%;
+}
+
+.newChessBrd{
+    display: block;
+    margin-top: 9%;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 1px 1px 12px 5px;
+}
+
+.game-modes{
+    
+    width: 30%;
+    height: 100%;
+}
+
+.modes-container{
+    background-color: #C0C0C0;
+    margin-top: 8%;
+    border-radius: 4px;
+    box-shadow: 2px 2.5px 14px 4px;
+}
+
+.game-modes h1{
+    padding: 20px 0;
+    text-align: center;
+}
+
+.mode-category{
+    margin-top: 3%;
+    padding: 0 25px 20px 25px;
+    
+    display: flex;
+    flex-direction: column;
+}
+
+.engine-heading, .online-heading{
+    margin-top: 30px;
+    padding: 10px 0;
+
+    cursor: pointer;
+    
+    border-radius: 4px;
+    box-shadow: 2px 2px 7px 2px;
+
+    font-size: 24px;
+    font-weight: bolder;
+    text-align: center;
+}
+
+.engine-levels, .online-modes{
+
+    display: none;
+}
+
+.engine:hover .engine-levels, .online:hover .online-modes{
+
+    display: block;
+}
+.engine ul, .online-modes{
+    margin-top: 20px;
+}
+.engine li, .online-modes li{
+    list-style: none;
+}
+
+.online-modes li a{
+    margin-top: 10px;
+    padding: 10px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 60%;
+    text-decoration: none;
+    color: black;
+    border: 2px solid black;
+    border-radius: 4px;
+    font-size: 20px;
+    font-weight: bolder;
+    text-align: center;
+}
+
+.engine-levels li{
+    display: flex;
+    flex-direction: row;
+    margin: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: rgba(33, 33, 33, 0.4);
+}
+
+.engine-levels li a{
+    padding: 10px;
+    text-decoration: none;
+    margin-left: 20px;
+    font-weight: bolder;
+}
+
+.white{
+    background-color: white;
+    color: black;
+}
+
+.black{
+    background-color: black;
+    color: white;
+}

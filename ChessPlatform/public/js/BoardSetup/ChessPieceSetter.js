@@ -9,10 +9,6 @@ class ChessPieceSetter{
         this.fenPos = fenPos;
         this.playerColor = playerColor;
     }
-
-    // sleep(ms) {
-    //     return new Promise(resolve => setTimeout(resolve, ms));
-    // }
     
     //set pieces according to fen position
     setPieces(){
@@ -84,10 +80,10 @@ class ChessPieceSetter{
         let imgEle = document.createElement('img');
         imgEle.setAttribute("draggable" , true)
         if(imgName == 'p' || imgName == 'r' || imgName == 'k' || imgName == 'q' || imgName == 'b' || imgName == 'n'){
-            imgEle.setAttribute("src" , "Images/black_pieces/" + imgName + '.png');
+            imgEle.setAttribute("src" , "/Images/black_pieces/" + imgName + '.png');
         }
         else{
-            imgEle.setAttribute("src" , "Images/white_pieces/" + imgName + '.png');
+            imgEle.setAttribute("src" , "/Images/white_pieces/" + imgName + '.png');
         }
         
         imgEle.style.height = height;

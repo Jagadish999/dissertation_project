@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterAndLoginController;
 use App\Http\Controllers\UserInterfaceController;
-use App\Http\Controllers\MatchMakingController;
 
 Route::get('/login', function() {
     return view('login');
@@ -25,15 +24,9 @@ Route::get('/logout', [RegisterAndLoginController::class, 'userLogOut'])->middle
 //Route for dashboard
 Route::get('/dashboard', [UserInterfaceController::class, 'dashboardView'])->middleware('userLoggedIn');
 
-//Route for multiplayer
-Route::get('/multiplayer', [UserInterfaceController::class, 'MultiplayerView'])->middleware('userLoggedIn');
+//Route for play
+Route::get('/play', [UserInterfaceController::class, 'playView'])->middleware('userLoggedIn');
 
-Route::get('/blitz', [MatchMakingController::class, 'matchBlitzPlayer'])->middleware('userLoggedIn');
+Route::get('/play/engine/level-1-black', [UserInterfaceController::class, 'level1Black'])->middleware('userLoggedIn');
 
-Route::get('/bullet', [MatchMakingController::class, 'matchBulletPlayer'])->middleware('userLoggedIn');
-
-Route::get('/classic', [MatchMakingController::class, 'matchClassicPlayer'])->middleware('userLoggedIn');
-
-Route::get('/playerFound', [MatchMakingController::class, 'waitingPlayerMatchMaking'])->name('playerFound');
-
-Route::get('/whitePlayerFound', [MatchMakingController::class, 'whitePlayerMatched'])->middleware('userLoggedIn');
+Route::get('/play/engine/level-1-white', [UserInterfaceController::class, 'level1White'])->middleware('userLoggedIn');
