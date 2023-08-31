@@ -1,32 +1,28 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RegisterAndLoginController;
 use App\Http\Controllers\UserInterfaceController;
+use App\Http\Controllers\MatchTypeController;
 
-Route::get('/login', function() {
-    return view('login');
-})->middleware('userLoggedOut');
+Route::get('/dashboard', [UserInterfaceController::class, 'dashboardView'])->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/register', function() {
-    return view('register');
-})->middleware('userLoggedOut');
+Route::get('/play', [UserInterfaceController::class, 'playView'])->middleware(['auth', 'verified']);
 
-//for registering new users
-Route::post('/user-registered', [RegisterAndLoginController::class, 'userRegistrationBeginning'])->name('user-registered');
+Route::get('/play/engine/level-1-black', [UserInterfaceController::class, 'level1Black'])->middleware(['auth', 'verified']);
 
-//Route form logIn
-Route::post('/user-logged', [RegisterAndLoginController::class, 'userLogged'])->name('user-logged');
+Route::get('/play/engine/level-1-white', [UserInterfaceController::class, 'level1White'])->middleware(['auth', 'verified']);
 
-//Route form logOut
-Route::get('/logout', [RegisterAndLoginController::class, 'userLogOut'])->middleware('userLoggedIn');
+Route::get('/play/online/{onlineChannelNumber}', [UserInterfaceController::class, 'onlineMultiplayer'])->middleware(['auth', 'verified']);
 
-//Route for dashboard
-Route::get('/dashboard', [UserInterfaceController::class, 'dashboardView'])->middleware('userLoggedIn');
+Route::post('/playerSelectedGameType', [MatchTypeController::class, 'MatchSelected'])->middleware(['auth', 'verified']);
 
-//Route for play
-Route::get('/play', [UserInterfaceController::class, 'playView'])->middleware('userLoggedIn');
+Route::post('/playersMatched', [MatchTypeController::class, 'broadCastPlayerMatching'])->middleware(['auth', 'verified']);
 
-Route::get('/play/engine/level-1-black', [UserInterfaceController::class, 'level1Black'])->middleware('userLoggedIn');
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
-Route::get('/play/engine/level-1-white', [UserInterfaceController::class, 'level1White'])->middleware('userLoggedIn');
+require __DIR__.'/auth.php';

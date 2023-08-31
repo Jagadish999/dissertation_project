@@ -16,3 +16,11 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
+
+Broadcast::channel('onlineUsers', function ($user) {
+    return $user;
+});
+
+Broadcast::channel('PlayerMatchedSuccessfully', function ($user) {
+    return $user;
+});

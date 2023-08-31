@@ -1,5 +1,34 @@
 function mainEventLoader(){
 
+    boardSetter();
+    gameModeSelected();
+}
+
+function gameModeSelected(){
+
+    const gameModeButton = document.getElementsByClassName('GameMode');
+    const matchMakingDetails = document.getElementsByClassName('matching-player-infos')[0];
+    const mainContainer = document.getElementsByClassName('main-container')[0];
+    const crossBtn = document.getElementsByClassName('sign-cross')[0];
+
+    for(let i = 0; i < gameModeButton.length; i++){
+        gameModeButton[i].addEventListener('click', () => {
+            
+            setTimeout(() => {
+                matchMakingDetails.style.display = 'block';
+                mainContainer.className += " blure";
+            }, 800)
+
+        });
+    }
+
+    crossBtn.addEventListener('click', () =>{
+        matchMakingDetails.style.display = 'none';
+        mainContainer.className = "main-container";
+    });
+}
+
+function boardSetter(){
     const initialBrdPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     const tempPlayer = "w";
 

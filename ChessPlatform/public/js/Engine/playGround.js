@@ -43,8 +43,8 @@ function currentBoardPosition(fenPos, color){
 
     const brdFirstColor = '#b48766';
     const brdSecondColor = '#edd9b6';
-    const brdheight = 650;
-    const brdWidth = 650;
+    const brdheight = 600;
+    const brdWidth = 600;
 
     //Object of ChessBoard for empty chess board
     const boardObj = new BlankChessBoard(brdFirstColor , brdSecondColor, brdheight, brdWidth);

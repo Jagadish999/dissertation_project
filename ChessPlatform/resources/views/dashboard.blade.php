@@ -11,17 +11,17 @@
 
     <div class = "main-container">
 
-        <div class = "side-nav">
-            <nav>
-                <li><a href="dashboard" class = "dashboard-nav-list">Dashboard</a></li>
-                <li><a href="play" class = "play-nav-list">Play</a></li>
-                <li><a href="#">Puzzles</a></li>
-                <li><a href="#">Leaderboard</a></li>
-                <li><a href="#">Tournament</a></li>
-                <li><a href="#">Analysis</a></li>
-                <li><a href="logout">Log Out</a></li>
-            </nav>
-        </div>
+    <div class = "side-nav">
+        <nav>
+            <li><a href="dashboard" class = "dashboard-nav-list">Dashboard</a></li>
+            <li><a href="play" class = "play-nav-list">Play</a></li>
+            <li><a href="profile">Profile</a></li>
+            <li><a href="#">Puzzles</a></li>
+            <li><a href="#">Leaderboard</a></li>
+            <li><a href="#">Analysis</a></li>
+            <li><a href="#">Log Out</a></li>
+        </nav>
+    </div>
 
         <div class = "content">
 
@@ -29,8 +29,8 @@
                 <img src="/Images/dummy/dummy-male.jpg" alt="Player Img">
 
                 <div class = "player-name-email">
-                    <h1>Name: {{$data['Fullname']}}</h1>
-                    <h1>Email: {{$data['Email']}}</h1>
+                    <h1>Name: {{$data['fullname']}}</h1>
+                    <h1>Email: {{$data['email']}}</h1>
                 </div>
 
             </div>

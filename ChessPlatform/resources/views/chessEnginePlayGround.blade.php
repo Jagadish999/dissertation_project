@@ -16,8 +16,8 @@
     <script src = "/js/ChessPiecesMovement/PiecesMovementManager.js"></script>
     <script src = "/js/ChessPiecesMovement/UpdatedFenPositionGenerator.js"></script>
 
-    <script src = "/js/playGround.js"></script>
-    <script src = "/js/globals.js"></script>
+    <script src = "/js/Engine/playGround.js"></script>
+    <script src = "/js/Engine/globals.js"></script>
 </head>
 <body>
 
@@ -80,8 +80,13 @@
 
             </div>
             <div class = "gameControllers">
-                <button class = "btn-leave">Exit</button>
-                <button class = "btn-newGame">New Game</button>
+            <button class = "btn-leave"><a href="/play">Exit</a></button>
+                @if($data['gameType'] == 'Engine Level 1' && $data['apiObject']['yourColor'] == 'w')
+                <button class = "btn-newGame"><a href="/play/engine/level-1-white">New Game</a></button>
+                @endif
+                @if($data['gameType'] == 'Engine Level 1' && $data['apiObject']['yourColor'] == 'b')
+                <button class = "btn-newGame"><a href="/play/engine/level-1-black">New Game</a></button>
+                @endif
             </div>
         </div>
 
