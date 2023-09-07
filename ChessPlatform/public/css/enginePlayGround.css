@@ -183,3 +183,39 @@ body{
     
     cursor: pointer;
 }
+
+.chat-msg{
+    color: white;
+}
+.blure{
+    filter: blur(12px);
+}
+.chat-msg div{
+    margin-top: 12px;
+    display: block;
+}
+
+.match-over-message{
+
+    display: none;
+
+    position: fixed;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    height: 450px;
+    width: 650px;
+    border: 4px solid black;
+
+    background-color: aquamarine;
+}
+
+.sign-cross span{
+    margin-left: 85%;
+    font-size: 65px;
+    font-weight: 600;
+    cursor: pointer;
+}

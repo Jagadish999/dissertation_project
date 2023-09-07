@@ -12,7 +12,7 @@
     <script src = "/js/BoardSetup/BlankChessBoard.js"></script>
     <script src = "/js/BoardSetup/ChessPieceSetter.js"></script>
 
-    <script src = "/js/multiplayer.js"></script>
+    <script src = "/js/play.js"></script>
 
 </head>
 <body>
@@ -23,10 +23,11 @@
             <nav>
                 <li><a href="/dashboard" class = "dashboard-nav-list">Dashboard</a></li>
                 <li><a href="/play" class = "play-nav-list">Play</a></li>
-                <li><a href="profile">Profile</a></li>
-                <li><a href="#">Puzzles</a></li>
-                <li><a href="#">Leaderboard</a></li>
-                <li><a href="#">Analysis</a></li>
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/puzzle">Puzzles</a></li>
+                <li><a href="/addpuzzle">Add Puzzles</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/analysis">Analysis</a></li>
                 <li><a href="logout">Log Out</a></li>
             </nav>
         </div>
@@ -55,7 +56,7 @@
                             <div class = "online">
                                 <div class = "online-heading">Online Match</div>
                                 <ul class = "online-modes">
-                                    <li class = "GameMode blitz"><a href="#">Blitz: 30 sec</a></li>
+                                    <li class = "GameMode blitz"><a href="#">Blitz: 1 min</a></li>
                                     <li class = "GameMode bullet"><a href="#">Bullet: 3 min</a></li>
                                     <li class = "GameMode classic"><a href="#">Classic: 10 min</a></li>
                                 </ul>
@@ -207,8 +208,11 @@
 
             for (const data of dataArray) {
 
+                const playerRating = Math.floor(playerData.rating);
+                const dataRating = Math.floor(data.rating);
+
                 if (
-                    (Math.floor(playerData.rating) ==  Math.floor(data.rating)) &&
+                    (Math.abs(playerRating - dataRating) <= 50) &&
                     (data.gameMode == playerData.gameMode) && playerData.id != data.id
                     )
                 
@@ -232,23 +236,18 @@
 
             try {
 
-            const response = await fetch(redirectURL, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify(requiredData)
-            });
+                const response = await fetch(redirectURL, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify(requiredData)
+                });
 
-            if (response.ok) {
-                const responseData = await response.json();
-            } else {
-                console.error('Response error:', response.statusText);
-            }
-
-            } catch (error) {
-            console.error('Error:', error);
+            } 
+            catch (error) {
+                console.error('Error:', error);
             }
         }
     </script>

@@ -15,6 +15,7 @@ class Matche extends Model
         'whitePlayer',
         'blackPlayer',
         'gameType',
-        'gameStatus'
+        'gameStatus',
+        'recordedTime'
     ];
 }

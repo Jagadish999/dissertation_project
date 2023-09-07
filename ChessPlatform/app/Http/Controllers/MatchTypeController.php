@@ -5,9 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Events\MatchMaking;
 use App\Events\PlayerRedirection;
+use App\Events\PlayerMadeMove;
+use App\Events\PlayerMessage;
 use App\Models\User;
 use App\Models\Rating;
 use App\Models\Matche;
+use App\Models\Move;
+use Symfony\Component\Process\Process;
+use Illuminate\Support\Facades\File;
+
+use DateTime;
 
 class MatchTypeController extends Controller
 {
@@ -47,6 +54,9 @@ class MatchTypeController extends Controller
 
         $randomNum = rand(0, 1);
 
+        $currentDateTime = new DateTime();
+        $currentTime = $currentDateTime->format('Y-m-d H:i:s');
+
         if($randomNum == 0){
             $white = $player1Id;
             $black = $player2Id;
@@ -61,8 +71,131 @@ class MatchTypeController extends Controller
             'blackPlayer' => $black,
             'gameType' => $gameType,
             'gameStatus' => "playing",
+            'recordedTime' => $currentTime
         ]);
 
         return $match->id;
     }
+
+    public function broadCastPlayerMove(Request $request){
+
+        $postData = $request->all();
+
+        echo json_encode($postData);
+
+        $startingFenPosition = $postData['apiObject']['startingFenPosition'];
+        $finalFenPosition = $postData['apiObject']['finalFenPosition'];
+
+        $move = $postData['apiObject']['currentMove'];
+        $matchNumber = $postData['channelNumber'];
+
+        $whiteRemainingTime = $postData['whiteRemainingTime'];
+        $blackRemainingTime = $postData['blackRemainingTime'];
+
+        MatchTypeController::recordMoveInDB($startingFenPosition, $finalFenPosition, $move, $matchNumber, $whiteRemainingTime, $blackRemainingTime);
+
+        $moveLen = explode(" ", $move);
+
+        event(new PlayerMadeMove($postData));
+    }
+
+    public function recordMoveInDB($startingFenPosition, $finalFenPosition, $move, $matchNumber, $whiteRemainingTime, $blackRemainingTime){
+
+        $currentDateTime = new DateTime();
+        $time = $currentDateTime->format('Y-m-d H:i:s');
+
+        $match = Move::create([
+            'matchNumber' => $matchNumber,
+            'startingFenPosition' => $startingFenPosition,
+            'finalFenPosition'=> $finalFenPosition,
+            'move' => $move,
+            'remainingTimeBlack' => $blackRemainingTime,
+            'remainingTimeWhite' => $whiteRemainingTime,
+            'recordedTime' => $time
+        ]);
+    }
+
+    public function broadCastPlayerMessage(Request $request){
+
+        $postData = $request->all();
+
+        event(new PlayerMessage($postData['channelNumber'], $postData['name'], $postData['msg']));
+    }
+
+    public function updateRating(Request $request){
+
+        $postData = $request->all();
+
+        $match = Matche::where('id', '=', $postData["matchId"])->first();
+
+        if($match->gameStatus == "playing"){
+
+
+            $whitePlayerRating = Rating::where('id', '=', $postData["playerWhiteId"])->first();
+            $blackPlayerRating = Rating::where('id', '=', $postData["playerBlackId"])->first();
+            
+            //update rating
+            if($postData["gameType"] == 'blitz'){
+                $whitePlayerRating->blitz = $postData['updatedWhiteId'];
+                $blackPlayerRating->blitz = $postData['updatedBlackId'];
+            }
+            else if($postData["gameType"] == 'bullet'){
+                $whitePlayerRating->bullet = $postData['updatedWhiteId'];
+                $blackPlayerRating->bullet = $postData['updatedBlackId'];
+            }
+            else{
+                $whitePlayerRating->classic = $postData['updatedWhiteId'];
+                $blackPlayerRating->classic = $postData['updatedBlackId'];
+            }
+            //update game data
+            $whitePlayerRating->save();
+            $blackPlayerRating->save();
+
+            $match->gameStatus = "over";
+            $match->save();
+        }
+    }
+
+//     public function bestMoveByStockFish(Request $request)
+// {
+//     // Specify the directory path to the Stockfish binary (use the correct path separator for Windows)
+//     $stockfishPath = public_path('stockfish/stockfish-windows-x86-64-avx2.exe');
+
+//     // Check if the binary file exists
+//     if (!file_exists($stockfishPath)) {
+//         return response()->json(['error' => 'Stockfish binary not found']);
+//     }
+
+//     // Define the Stockfish commands
+//     $fenPosition = 'rnbqkbnr/ppppppp1/7p/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2';
+//     $cmd1 = 'position fen "' . $fenPosition . '"';
+//     $cmd2 = 'go depth 15';
+
+//     // Create separate Process instances for each command
+//     $process = new Process([$stockfishPath]);
+
+//     $process->start();
+//     $process->wait();
+
+//     echo "___________Res---1_______________";
+//     echo $process->getOutput();
+//     echo "__________________________________";
+
+//     $process->setInput($cmd1);
+//     $process->start();
+//     $process->wait();
+
+//     echo "___________Res---2_______________";
+//     echo $process->getOutput();
+//     echo "__________________________________";
+
+//     $process->setInput($cmd2);
+//     $process->start();
+//     $process->wait();
+
+//     echo "___________Res---3_______________";
+//     echo $process->getOutput();
+//     echo "__________________________________";
+// }
+
 }

@@ -54,3 +54,7 @@ body{
 .side-nav nav li a:hover{
     background-color: #1a1a1a;
 }
+
+.content{
+    overflow: auto;
+}

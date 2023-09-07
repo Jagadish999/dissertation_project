@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('blackPlayer');
             $table->string('gameType');
             $table->string('gameStatus');
+            $table->string('recordedTime');
 
             $table->foreign('whitePlayer')->references('id')->on('users');
             $table->foreign('blackPlayer')->references('id')->on('users');

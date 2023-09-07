@@ -11,17 +11,18 @@
 
     <div class = "main-container">
 
-    <div class = "side-nav">
-        <nav>
-            <li><a href="dashboard" class = "dashboard-nav-list">Dashboard</a></li>
-            <li><a href="play" class = "play-nav-list">Play</a></li>
-            <li><a href="profile">Profile</a></li>
-            <li><a href="#">Puzzles</a></li>
-            <li><a href="#">Leaderboard</a></li>
-            <li><a href="#">Analysis</a></li>
-            <li><a href="#">Log Out</a></li>
-        </nav>
-    </div>
+        <div class = "side-nav">
+            <nav>
+                <li><a href="/dashboard" class = "dashboard-nav-list">Dashboard</a></li>
+                <li><a href="/play" class = "play-nav-list">Play</a></li>
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/puzzle">Puzzles</a></li>
+                <li><a href="/addpuzzle">Add Puzzles</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/analysis">Analysis</a></li>
+                <li><a href="logout">Log Out</a></li>
+            </nav>
+        </div>
 
         <div class = "content">
 

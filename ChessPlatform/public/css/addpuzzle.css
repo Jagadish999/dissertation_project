@@ -1,0 +1,28 @@
+.content{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
+.puzzle-type-specifier{
+
+    width: 100%;
+    height: 7%;
+
+    border: 2px solid black;
+}
+
+.board{
+    width: 100%;
+    height: 70%;
+
+    border: 2px solid black;
+}
+
+.controller{
+    width: 100%;
+    height: 7%;
+
+    border: 2px solid black;
+}

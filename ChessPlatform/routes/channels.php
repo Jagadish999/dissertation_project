@@ -24,3 +24,11 @@ Broadcast::channel('onlineUsers', function ($user) {
 Broadcast::channel('PlayerMatchedSuccessfully', function ($user) {
     return $user;
 });
+
+Broadcast::channel('MoveDetaction', function ($user) {
+    return $user;
+});
+
+Broadcast::channel('MessageSent', function ($user) {
+    return $user;
+});

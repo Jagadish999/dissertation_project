@@ -103,6 +103,8 @@
 
             apiInfos = apiInformation;
 
+            gameType = "Engine";
+
             playerId = apiInfos.yourId;
             computerId = apiInfos.computerId;
 
@@ -117,6 +119,7 @@
         //Send API Information to function
         const api = @json($data['apiObject']);
         mainEventLoader(api);
+        
     </script>
     
 </body>

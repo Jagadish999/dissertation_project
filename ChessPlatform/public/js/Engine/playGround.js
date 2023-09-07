@@ -435,6 +435,7 @@ function startNewPosition(updatedFenPosition, updatedCastelInformations){
 
     mainEventLoader(apiInfos);
     main();
+    
 }
 
 function clearGlobals(){
