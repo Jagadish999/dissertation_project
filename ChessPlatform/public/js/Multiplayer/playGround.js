@@ -469,8 +469,6 @@ function findPieceByCurrentSquare(currentSquare){
 //_______________________________________________________________________________________________________________
 function generateFenPosition(){
 
-    let pawnPromotedTo = null;
-
     if((clickedPieceDetails.pieceName == 'P' || clickedPieceDetails.pieceName == 'p') && ((movedSquare >= 57 && movedSquare <= 64) || (movedSquare >= 1 && movedSquare <= 8))){
 
         const movedElement = document.getElementsByClassName(movedSquare)[0];
@@ -595,11 +593,11 @@ function startNewPosition(updatedFenPosition, updatedCastelInformations){
     let currentMove;
 
     //Piece captured
-    if(clickedPieceDetails.availableCaptures.includes(movedSquare) || clickedPieceDetails.castelSquare.includes(movedSquare)){
+    if(clickedPieceDetails.availableCaptures.includes(movedSquare) || clickedPieceDetails.unphasantSquare.includes(movedSquare)){
         currentMove = clickedPieceDetails.pieceName + "x " + clickedPieceDetails.currentSquare + " " + movedSquare;
     }
     //only piece movement
-    else if(clickedPieceDetails.availableSquares.includes(movedSquare) || clickedPieceDetails.unphasantSquare.includes(movedSquare)){
+    else if(clickedPieceDetails.availableSquares.includes(movedSquare) || clickedPieceDetails.castelSquare.includes(movedSquare)){
         currentMove = clickedPieceDetails.pieceName + " " + clickedPieceDetails.currentSquare + " " + movedSquare;
     }
 
@@ -621,7 +619,7 @@ function startNewPosition(updatedFenPosition, updatedCastelInformations){
     }
 
     console.log('Current checkMate: ' + finalFenPosStatus[1] + " current stalemate: " + finalFenPosStatus[2]);
-    //checkmate
+    //checkmates
     if(finalFenPosStatus[1]){
         currentMove += " " + playerWinning + " W";
     }

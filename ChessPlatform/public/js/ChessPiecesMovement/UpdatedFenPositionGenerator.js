@@ -51,7 +51,7 @@ class UpdatedFenPositionGenerator{
                     tempChessBoardArray[7] = 0;
                     tempChessBoardArray[this.movedSquare -2] = 'R';
                 }
-                // if()
+
             }
             else if(pieceName == 'p' && this.clickedPieceDetail.unphasantSquare.includes(this.movedSquare)){
                 tempChessBoardArray[this.clickedPieceDetail.currentSquare - 1] = 0;
