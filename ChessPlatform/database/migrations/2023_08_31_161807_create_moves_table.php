@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('moves', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('matchNumber');
+            $table->string('matchType');
             $table->string('startingFenPosition');
             $table->string('finalFenPosition');
             $table->string('move');

@@ -11,6 +11,7 @@ class Move extends Model
     public $timestamps = false;
     protected $fillable = [
         'matchNumber',
+        'matchType',
         'startingFenPosition',
         'finalFenPosition',
         'move',

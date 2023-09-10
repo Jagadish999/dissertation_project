@@ -1,0 +1,194 @@
+body{
+    background-color: #787774;
+}
+
+.main-container{
+    margin-top: 2%;
+    
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.chessBrd-area{
+    width: 55%;
+    height: 100%;
+}
+
+.newChessBrd{
+    margin-left: auto;
+    box-shadow: 0px 1px 11px 2px;
+    height: 650px;
+    width: 650px;
+}
+
+.moveDetail-area{
+    color: white;
+    margin-left: 2%;
+    width: 40%;
+    height: 100%;
+}
+
+.moves-details{
+
+    background-color: #353334;
+    height: 400px;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+}
+
+.moves-details div{
+    margin: 8px;
+    padding: 12px;
+    display: block;
+    
+    font-size: 30px;}
+
+.player1Details, .player2Details{
+    background-color: #252324;
+    display: flex;
+    flex-direction: row;
+    height: 100px;
+    border: 1px solid #ccc;
+}
+
+.player1Details h2, .player2Details h2{
+    padding-top: 20px;
+    width: 80%;
+    text-align: center;
+    font-size: 35px;
+}
+
+.gameControllers{
+    height: 50px;
+    background-color: rgb(21, 25, 44);
+    border: 1px solid #ccc;
+
+}
+
+
+.moveDetail-area img{
+
+    margin-top: 10px;
+    margin-left: 10px;
+    height: 80px;
+    width: 80px;
+    border-radius: 50%;
+}
+
+.finalMove{
+    background-color: rgb(81, 95, 95);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+}
+
+/* Add styles for the buttons */
+.gameControllers {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.btn-leave{
+
+    background-color: #f11f31;
+    
+}
+
+.btn-hint{
+
+    background-color: #1dd420;
+}
+
+.btn-leave, .btn-hint {
+    font-size: 20px;
+    font-weight: bolder;
+
+    margin-top: 4px;
+
+    height: 80%;
+    width: 20%;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-leave:hover , .btn-hint:hover {
+    background-color: #0056b3;
+}
+
+.btn-leave i {
+    margin-right: 5px;
+}
+
+.blure{
+    filter: blur(12px);
+}
+
+
+
+.matching-player-infos{
+
+    display: none;
+
+    position: fixed;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    height: 450px;
+    width: 650px;
+
+    border-radius: 22px 22px 22px 22px;
+
+    background-color: #2f303c;
+
+    text-align: center;
+    box-shadow: 0px 1px 10px 2px;
+
+}
+
+.matching-player-infos .findingPlayerHeading{
+    font-size: 52px;
+    color: rgb(190, 214, 229);
+}
+
+.sign-cross span{
+    color: #d54449;
+    margin-left: 85%;
+    font-size: 85px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.options{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
+.Opt{
+    margin-bottom: 30px;
+    width: 40%;
+    height: 40%;
+    font-size: 32px;
+    padding: 5px 10px;
+    background-color: rgb(166 175 215);
+    color: #fff;
+    cursor: pointer;
+    border-radius: 5px;
+    box-shadow: 4px 3px 14px 7px rgba(26, 23, 23, 0.4);
+
+}
+
+.Opt img{
+    height: 75px;
+    width: 75px;
+}

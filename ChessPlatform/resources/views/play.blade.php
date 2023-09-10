@@ -78,6 +78,7 @@
 
         <div class = "match-making-message">
             <h1>Finding Player </h1>
+            
         </div>
 
     </div>

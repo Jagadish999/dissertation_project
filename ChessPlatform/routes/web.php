@@ -4,24 +4,41 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserInterfaceController;
 use App\Http\Controllers\MatchTypeController;
+use App\Http\Controllers\UserNavigationController;
+use App\Http\Controllers\MatchController;
 
-Route::get('/dashboard', [UserInterfaceController::class, 'dashboardView'])->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/play', [UserInterfaceController::class, 'playView'])->middleware(['auth', 'verified'])->name('playView');
 
-Route::get('/play/engine/level-1-black', [UserInterfaceController::class, 'level1Black'])->middleware(['auth', 'verified']);
 
-Route::get('/play/engine/level-1-white', [UserInterfaceController::class, 'level1White'])->middleware(['auth', 'verified']);
+
+//Routes for navigation menus
+Route::get('/dashboard', [UserNavigationController::class, 'dashboardView'])->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/play', [UserNavigationController::class, 'playView'])->middleware(['auth', 'verified'])->name('playView');
+
+Route::get('/puzzle', [UserNavigationController::class, 'playPuzzleView'])->middleware(['auth', 'verified']);
+
+Route::get('/addpuzzle', [UserNavigationController::class, 'addPuzzleView'])->middleware(['auth', 'verified']);
+
+Route::get('/leaderboard', [UserNavigationController::class, 'leaderBoardView'])->middleware(['auth', 'verified']);
+
+Route::get('/analysis', [UserNavigationController::class, 'gameAnalysisView'])->middleware(['auth', 'verified']);
+
+
+//Routes for match with engine
+
+Route::post('/engineMatchSelected', [MatchController::class, 'insertEngineMatchDetails'])->middleware(['auth', 'verified']);
+Route::get('/engineground/{matchNumber}', [MatchController::class, 'redirectEnginePlayGround'])->middleware(['auth', 'verified']);
+
+
+
+// Route::get('/play/engine/level-1-black', [UserInterfaceController::class, 'level1Black'])->middleware(['auth', 'verified']);
+
+// Route::get('/play/engine/level-1-white', [UserInterfaceController::class, 'level1White'])->middleware(['auth', 'verified']);
 
 Route::get('/play/online/{onlineChannelNumber}', [UserInterfaceController::class, 'onlineMultiplayer'])->middleware(['auth', 'verified']);
 
-Route::get('/puzzle', [UserInterfaceController::class, 'playPuzzleView'])->middleware(['auth', 'verified']);
 
-Route::get('/addpuzzle', [UserInterfaceController::class, 'addPuzzleView'])->middleware(['auth', 'verified']);
-
-Route::get('/leaderboard', [UserInterfaceController::class, 'leaderBoardView'])->middleware(['auth', 'verified']);
-
-Route::get('/analysis', [UserInterfaceController::class, 'getUserGameData'])->middleware(['auth', 'verified']);
 
 Route::get('/analysisMatch/{matchId}', [UserInterfaceController::class, 'analysisInformation'])->middleware(['auth', 'verified']);
 

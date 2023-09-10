@@ -130,7 +130,6 @@ class MatchTypeController extends Controller
 
         if($match->gameStatus == "playing"){
 
-
             $whitePlayerRating = Rating::where('id', '=', $postData["playerWhiteId"])->first();
             $blackPlayerRating = Rating::where('id', '=', $postData["playerBlackId"])->first();
             
@@ -155,47 +154,4 @@ class MatchTypeController extends Controller
             $match->save();
         }
     }
-
-//     public function bestMoveByStockFish(Request $request)
-// {
-//     // Specify the directory path to the Stockfish binary (use the correct path separator for Windows)
-//     $stockfishPath = public_path('stockfish/stockfish-windows-x86-64-avx2.exe');
-
-//     // Check if the binary file exists
-//     if (!file_exists($stockfishPath)) {
-//         return response()->json(['error' => 'Stockfish binary not found']);
-//     }
-
-//     // Define the Stockfish commands
-//     $fenPosition = 'rnbqkbnr/ppppppp1/7p/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2';
-//     $cmd1 = 'position fen "' . $fenPosition . '"';
-//     $cmd2 = 'go depth 15';
-
-//     // Create separate Process instances for each command
-//     $process = new Process([$stockfishPath]);
-
-//     $process->start();
-//     $process->wait();
-
-//     echo "___________Res---1_______________";
-//     echo $process->getOutput();
-//     echo "__________________________________";
-
-//     $process->setInput($cmd1);
-//     $process->start();
-//     $process->wait();
-
-//     echo "___________Res---2_______________";
-//     echo $process->getOutput();
-//     echo "__________________________________";
-
-//     $process->setInput($cmd2);
-//     $process->start();
-//     $process->wait();
-
-//     echo "___________Res---3_______________";
-//     echo $process->getOutput();
-//     echo "__________________________________";
-// }
-
 }

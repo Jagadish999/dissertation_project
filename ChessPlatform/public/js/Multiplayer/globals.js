@@ -38,7 +38,6 @@ let clickedPieceDetails = null;
 let movedSquare;
 
 
-//Sounds for moves
 const moveAudio = new Audio('/Sounds/move.mp3');
 const captureAudio = new Audio('/Sounds/Capture.mp3');
 const checkAudio = new Audio('/Sounds/Check.mp3');
