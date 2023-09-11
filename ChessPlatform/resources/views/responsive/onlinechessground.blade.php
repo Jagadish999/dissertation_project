@@ -5,8 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-
-    <title>Chess Engine</title>
+    <title>Online Multiplayer</title>
     
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
@@ -15,7 +14,6 @@
     <link rel="stylesheet" href="/css/dashboard/style.css">
     <link rel="stylesheet" href="/css/play/engine.css">
     
-
     <script src = "/js/chess/chess.js"></script>
     
     <script src = "/js/chess/BoardSetup/BlankChessBoard.js"></script>
@@ -36,15 +34,26 @@
 
 </head>
 <body>
+    @csrf
+    @include('partials.onlinechessgroundcontain');
 
-    @include('partials.enginegroundcontain')
-
+    <script src = "{{asset('build/assets/app-4212186a.js')}}"></script>
     <script>
-        const serverData = @json($data);
-        console.log(serverData);
+        let serverData = @json($data);
 
+        const yourId = serverData.playerInfomation.yourId;
+        const blackId = serverData.playerInfomation.playerBlackId;
+        const whiteId = serverData.playerInfomation.playerWhiteId;
 
-        //Place Images Properly
+        Echo.join('MoveDetaction')
+        .listen('PlayerMadeMove', (event) => {
+
+            console.log("From Event Listener");
+
+            serverData.boardDetails = event.apiData.boardDetails;
+            main();
+        });
+
     </script>
     
 </body>

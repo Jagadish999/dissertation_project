@@ -54,8 +54,58 @@ class ChessElementHandler {
         this.boardWithPieces.getElementsByClassName(secondSquareToHighlight)[0].style.border = '2px solid black';
     }
 
+    setBoardWithCheckedSquarePieces(kingSquare){
+
+        this.boardWithPieces.getElementsByClassName(kingSquare)[0].style.backgroundColor = "#5B5EA6";
+        this.boardWithPieces.getElementsByClassName(kingSquare)[0].style.border = "2px solid black";
+    }
+
     getChessBoard(){
         return this.boardWithPieces;
     }
 
+    setHintForPlayer(sq1, sq2){
+        console.log(sq1, sq2, 'asdjnasjdnkasdn');
+        this.boardWithPieces.getElementsByClassName(sq1)[0].style.backgroundColor = "red";
+        this.boardWithPieces.getElementsByClassName(sq1)[0].style.border = "2px solid black";
+
+        console.log(this.boardWithPieces.getElementsByClassName(sq1)[0]);
+        this.boardWithPieces.getElementsByClassName(sq2)[0].style.backgroundColor = "red";
+        this.boardWithPieces.getElementsByClassName(sq2)[0].style.border = "2px solid black";
+    }
+
+    createMoveElements(moveArray) {
+        const movesWrapper = document.createElement('div');
+        movesWrapper.classList.add('moves-details-wrapper');
+        
+        const totalMoves = moveArray.length;
+      
+        for (let i = totalMoves - 1; i >= 0; i--) {
+          const moveElement = document.createElement('div');
+          const moveText = moveArray[i].split(' ');
+      
+          // Determine the move number based on whether there is only one move or multiple moves
+          const moveNumber = totalMoves > 1 ? i + 1 : 1; // Always start with 1 if there's only one move
+      
+          // Create the move text based on the components
+          let moveTextString = '';
+      
+          // Add the move number
+          moveTextString += `${moveNumber}. `;
+      
+          // Add the move description
+          moveTextString += moveText.join(' ');
+      
+          moveElement.textContent = moveTextString;
+      
+          if (i === totalMoves - 1) {
+            moveElement.classList.add('finalMove');
+          }
+      
+          movesWrapper.appendChild(moveElement);
+        }
+      
+        return movesWrapper;
+      }
+      
 }

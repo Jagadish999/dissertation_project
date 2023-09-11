@@ -30,5 +30,15 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('stockfishmatches');
+
+        Schema::create('moves', function (Blueprint $table) {
+            $table->id();
+            $table->integer('stockfish_match_number');
+            $table->text('startingFenPosition');
+            $table->text('finalFenPosition');
+            $table->string('move');
+            // Add any other columns you need here
+            $table->timestamps();
+        });
     }
 };

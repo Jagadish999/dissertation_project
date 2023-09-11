@@ -11,17 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('moves', function (Blueprint $table) {
+        Schema::create('stockfish_moves', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('matchNumber');
-            $table->string('startingFenPosition');
-            $table->string('finalFenPosition');
+            $table->text('startingFenPosition');
+            $table->text('finalFenPosition');
             $table->string('move');
-            $table->string('recordedTime');
-            $table->unsignedBigInteger('remainingTimeWhite');
-            $table->unsignedBigInteger('remainingTimeBlack');
-
-            $table->foreign('matchNumber')->references('id')->on('matches');
+            // Add any other columns you need here
+            $table->foreign('matchNumber')->references('id')->on('stockfish_matches');
         });
     }
 
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('moves');
+        Schema::dropIfExists('stockfish_moves');
     }
 };

@@ -52,7 +52,7 @@ class GetOrPostRequest {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
-                body: JSON.stringify({ fen: fenPosition, depth: depthValue }), // Include depth in the request body
+                body: JSON.stringify({ fen: fenPosition, depth: depthValue }),
             });
     
             if (!response.ok) {
@@ -60,10 +60,12 @@ class GetOrPostRequest {
             }
     
             const data = await response.json();
-            console.log('The best move is:', data.best_move);
+            console.log('The best move is:', data.best_move); // Log the best move
+            return data.best_move; // Return the best move
         } catch (error) {
             console.error('Error:', error);
         }
     }
+    
     
 }

@@ -2,14 +2,9 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserInterfaceController;
-use App\Http\Controllers\MatchTypeController;
 use App\Http\Controllers\UserNavigationController;
 use App\Http\Controllers\MatchController;
-
-
-
-
+use App\Http\Controllers\MatchTypeController;
 
 //Routes for navigation menus
 Route::get('/dashboard', [UserNavigationController::class, 'dashboardView'])->middleware(['auth', 'verified'])->name('dashboard');
@@ -29,31 +24,19 @@ Route::get('/analysis', [UserNavigationController::class, 'gameAnalysisView'])->
 
 Route::post('/engineMatchSelected', [MatchController::class, 'insertEngineMatchDetails'])->middleware(['auth', 'verified']);
 Route::get('/engineground/{matchNumber}', [MatchController::class, 'redirectEnginePlayGround'])->middleware(['auth', 'verified']);
+Route::post('/engineMatchMoves', [MatchController::class, 'recordMovesWithEngine'])->middleware(['auth', 'verified']);
 
 
+//About to match player
+Route::post('/playerSelectedGameType', [MatchController::class, 'MatchSelected'])->middleware(['auth', 'verified']);
 
-// Route::get('/play/engine/level-1-black', [UserInterfaceController::class, 'level1Black'])->middleware(['auth', 'verified']);
-
-// Route::get('/play/engine/level-1-white', [UserInterfaceController::class, 'level1White'])->middleware(['auth', 'verified']);
-
-Route::get('/play/online/{onlineChannelNumber}', [UserInterfaceController::class, 'onlineMultiplayer'])->middleware(['auth', 'verified']);
-
+//Player Matched
+Route::post('/playersMatched', [MatchController::class, 'broadCastPlayerMatching'])->middleware(['auth', 'verified']);
 
 
-Route::get('/analysisMatch/{matchId}', [UserInterfaceController::class, 'analysisInformation'])->middleware(['auth', 'verified']);
+Route::get('/play/online/{onlineChannelNumber}', [MatchController::class, 'onlineMultiplayer'])->middleware(['auth', 'verified']);
 
-
-Route::post('/playerSelectedGameType', [MatchTypeController::class, 'MatchSelected'])->middleware(['auth', 'verified']);
-
-Route::post('/playersMatched', [MatchTypeController::class, 'broadCastPlayerMatching'])->middleware(['auth', 'verified']);
-
-Route::post('/playersMadeMove', [MatchTypeController::class, 'broadCastPlayerMove'])->middleware(['auth', 'verified']);
-
-Route::post('/playerMessaged', [MatchTypeController::class, 'broadCastPlayerMessage'])->middleware(['auth', 'verified']);
-
-Route::post('/matchOver', [MatchTypeController::class, 'updateRating'])->middleware(['auth', 'verified']);
-
-
+Route::post('/playersMadeMove', [MatchController::class, 'broadCastPlayerMove'])->middleware(['auth', 'verified']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

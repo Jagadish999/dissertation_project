@@ -28,23 +28,26 @@ body{
     margin-left: 2%;
     width: 40%;
     height: 100%;
+    box-shadow: 0px 1px 11px 2px black;
 }
 
 .moves-details{
+    border: 1px solid #ccc;
 
     background-color: #353334;
     height: 400px;
     max-height: 400px;
     overflow-y: auto;
-    border: 1px solid #ccc;
+
 }
 
-.moves-details div{
+.moves-details-wrapper div{
     margin: 8px;
     padding: 12px;
     display: block;
     
-    font-size: 30px;}
+    font-size: 30px;
+}
 
 .player1Details, .player2Details{
     background-color: #252324;
@@ -65,9 +68,7 @@ body{
     height: 50px;
     background-color: rgb(21, 25, 44);
     border: 1px solid #ccc;
-
 }
-
 
 .moveDetail-area img{
 
@@ -76,6 +77,10 @@ body{
     height: 80px;
     width: 80px;
     border-radius: 50%;
+    border: 2px solid black;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+
 }
 
 .finalMove{

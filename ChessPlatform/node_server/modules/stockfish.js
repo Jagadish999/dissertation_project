@@ -7,7 +7,7 @@ const stockfishPath = './stockfish/stockfish-windows-x86-64-avx2.exe';
 // Function to get the best move from Stockfish
 function getBestMove(fen, depth, callback) {
 
-    console.log("Congratulation: " + fen);
+    console.log("Received: " + fen);
   const stockfish = spawn(stockfishPath);
 
   stockfish.stdin.setEncoding('utf-8');
@@ -25,7 +25,7 @@ function getBestMove(fen, depth, callback) {
   });
 
   stockfish.stdin.write('position fen ' + fen + '\n');
-  stockfish.stdin.write('go depth ' + depth + '\n');
+  stockfish.stdin.write('go depth ' + depth + ' movetime 2000' +'\n');
 }
 
 // Function to get move evaluation from Stockfish

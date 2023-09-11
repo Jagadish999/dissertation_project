@@ -11,10 +11,8 @@
 
     <link rel="stylesheet" href="/css/dashboard/style.css">
     <link rel="stylesheet" href="/css/play/play.css">
-
-    <script src = "/js/BoardSetup/BlankChessBoard.js"></script>
-    <script src = "/js/BoardSetup/ChessPieceSetter.js"></script>
     
+    <script src = "{{asset('build/assets/app-4212186a.js')}}"></script>
     <script src = "/js/play/play.js"></script>
     <script src = "/js/PostRequest/GetOrPostRequest.js"></script>
     
@@ -26,11 +24,11 @@
     @include('partials.playcontain')
 
     <script src = "/js/dashboard/script.js"></script>
+    
 
     <script>
-        const userInfos = @json($userInfo);
-        
-
+        const userInfos = @json($userDetails);
+        console.log(userInfos);
     </script>
 
 </body>

@@ -1,5 +1,159 @@
+//Record of all the players waiting to play matches
+let playersRequested = [];
+
+Echo.join('PlayerMatchedSuccessfully')
+.listen('PlayerRedirection', (event) => {
+
+    const eventData =  event.matchedPlayer;
+    console.log(eventData);
+
+    console.log("Channel Id is: " + eventData.channelId);
+
+    if(userInfos.id == eventData.player1Id || userInfos.id == eventData.player2Id){
+        console.log("You Will be redirected");
+        window.location.href = '/play/online/' + eventData.channelId;
+    }
+});
+
+Echo.join('onlineUsers')
+.listen('MatchMaking', (event) => {
+
+    console.log("Player inserted data");
+            
+    const playerFindingMatch = JSON.parse(event.data);
+
+    //Do not record same request twice
+    if(!dataAlreadyExist(playersRequested, playerFindingMatch)){
+
+        //Push data of player which is searching for opponent
+        playersRequested.push(playerFindingMatch);
+
+        //Find if player can be matched and redirected to play ground
+        matchingPlayerInfo = findMatchingPlayer(playersRequested, playerFindingMatch);
+
+        // You have found the player to play match
+        if(playersRequested.length > 0 && matchingPlayerInfo != -1){
+
+            console.log("Player found");
+            
+            //if matching player is found clear all the previous requests
+            clearAllGameRequest(playersRequested, playerFindingMatch.id, matchingPlayerInfo.id);
+
+            const requiredData = {
+                player1Id : playerFindingMatch.id,
+                player2Id : matchingPlayerInfo.id,
+                gameType : playerFindingMatch.gameMode
+            };
+
+            console.log("You will trigger Event: " + userInfos.id == playersRequested.id);
+
+            //Only one of the player will load post method and trigger the event
+            if(userInfos.id == matchingPlayerInfo.id){
+
+                console.log("Players will be redirected");
+
+                //Trigger Event that enters matched players in play ground
+                const redirectURL = "/playersMatched";
+                const getOrPostRequestObj = new GetOrPostRequest();
+                getOrPostRequestObj.sendPostRequest(requiredData, redirectURL);
+            }
+        }
+    }
+});
+
+function dataAlreadyExist(dataArray, newData) {
+
+    if (dataArray.length === 0) {
+        return false;
+    }
+
+    for (const data of dataArray) {
+
+        if (data.id === newData.id && data.gameMode === newData.gameMode) {
+            return true;
+        }
+    }
+    return false;
+}
+
+//Match Players with rating difference of 100 max
+function findMatchingPlayer(dataArray, playerData) {
+
+    //returns user data details if player is found else returns -1
+    for (const data of dataArray) {
+
+        const playerRating = Math.floor(playerData.rating);
+        const dataRating = Math.floor(data.rating);
+
+        if (
+            (Math.abs(playerRating - dataRating) <= 100) &&
+            (data.gameMode == playerData.gameMode) && playerData.id != data.id
+            )
+        
+        {
+            return data;
+        }
+    }
+
+    return -1;
+}
+
+function clearAllGameRequest(dataArray, playerId1, playerId2) {
+    for (let i = dataArray.length - 1; i >= 0; i--) {
+        if (dataArray[i].id === playerId1 || dataArray[i].id === playerId2) {
+            dataArray.splice(i, 1);
+        }
+    }
+}
+
+function runMatchMakingEvents(){
+
+    const getOrPostRequestObj = new GetOrPostRequest();
+
+    //Keep track of players selecting game modes blitz bullet or classic
+    const gameModeSelectBtn = document.getElementsByClassName('GameMode');
+    
+    let rating;
+
+    for(let i = 0; i < gameModeSelectBtn.length; i++){
+
+        gameModeSelectBtn[i].addEventListener('click', async () => {
+
+            const gameMode = gameModeSelectBtn[i].className.split(" ")[1];
+            
+            if(gameMode == "blitz"){
+                rating = userInfos.blitz;
+            }
+            else if(gameMode == "classic"){
+                rating = userInfos.classic;
+            }
+            else{
+                rating = userInfos.bullet;
+            }
+            
+            const data = {
+                id : userInfos.id,
+                gameMode : gameMode,
+                rating : rating
+            }
+
+            console.log("Player selected gametype: ");
+            console.log(data);
+
+            //Trigger Event that notifies all players waiting to play
+            getOrPostRequestObj.sendPostRequest(data, "/playerSelectedGameType");
+        });
+    }
+}
+
+
+
+
+
+
 function mainFunctionLoader(){
     gameModeSelected();
+    runMatchMakingEvents();
 }
 
 function gameModeSelected(){
@@ -63,7 +217,6 @@ function gameModeSelected(){
 
             //Insert data in db inserted
             const matchNumber = await getOrPostRequestObj.sendPostRequest(requiredData, '/engineMatchSelected');
-            console.log("Match Number is: " + matchNumber);
             if(matchNumber > 0){
                 window.location.href = '/engineground/' + matchNumber;
             }

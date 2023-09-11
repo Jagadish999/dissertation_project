@@ -11,9 +11,6 @@ use App\Models\User;
 use App\Models\Rating;
 use App\Models\Matche;
 use App\Models\Move;
-use Symfony\Component\Process\Process;
-use Illuminate\Support\Facades\File;
-
 use DateTime;
 
 class MatchTypeController extends Controller
@@ -92,9 +89,9 @@ class MatchTypeController extends Controller
         $whiteRemainingTime = $postData['whiteRemainingTime'];
         $blackRemainingTime = $postData['blackRemainingTime'];
 
-        MatchTypeController::recordMoveInDB($startingFenPosition, $finalFenPosition, $move, $matchNumber, $whiteRemainingTime, $blackRemainingTime);
+        // MatchTypeController::recordMoveInDB($startingFenPosition, $finalFenPosition, $move, $matchNumber, $whiteRemainingTime, $blackRemainingTime);
 
-        $moveLen = explode(" ", $move);
+        // $moveLen = explode(" ", $move);
 
         event(new PlayerMadeMove($postData));
     }

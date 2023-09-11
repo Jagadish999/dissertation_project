@@ -151,13 +151,57 @@ class MainChessController{
         }
 
         this.currentMovePlayed = tempMove;
-        console.log(this.currentMovePlayed);
-
     }
 
     getCurrentMove(){
         return this.currentMovePlayed;
     }
 
+    //set current piece detail
+    findPieceMovedSquare(bestMove){
+        const firstSq = bestMove.split('');
+        return this.fileRankToSquare(firstSq[2], firstSq[3]);
+    }
 
+    findPieceCurrnetSquare(bestMove){
+
+        const firstSq = bestMove.split('');
+        return this.fileRankToSquare(firstSq[0], firstSq[1]);
+      }
+
+    findSelectedPieceDetails(pieceSquare){
+
+        for(let i = 0; i < this.allLegalMoves[0].length; i++){
+            if(this.allLegalMoves[0][i].currentSquare == pieceSquare){
+              return this.allLegalMoves[0][i];
+            }
+          }
+    }
+
+    fileRankToSquare(file, rank){
+
+        const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+      
+        const totalSq = parseInt(rank) * 8;
+        const extraSq = 8 - (files.indexOf(file) + 1);
+      
+        return totalSq - extraSq;
+      }
+
+    findPawnPromotionIfExist(bestMove){
+
+        const piecesPromotedTo = ['q', 'r', 'b', 'n'];
+        const player = this.startingFenPosition.split(" ")[1];
+        const moveSplitted = bestMove.split("");
+
+        if(player == 'b' && piecesPromotedTo.includes(moveSplitted[4])){
+            return moveSplitted[4];
+        }
+        else if(player == 'w' && piecesPromotedTo.includes(moveSplitted[4])){
+            return moveSplitted[4].toUpperCase();
+        }
+        else{
+            return null;
+        }
+    }
 }
