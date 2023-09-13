@@ -17,156 +17,75 @@ use DateTime;
 
 class MatchController extends Controller
 {
-    public function onlineMultiplayer(Request $request, $onlineChannelNumber){
+    public function analysisMatchDetails($matchType, $matchNumber){
 
-        //Logged User
-        $loggedUser = auth()->user();
-        $playerInformation = User::where('id', '=', $loggedUser->id)->first();
-
-        $matchDetails = Matche::where('id', '=', $onlineChannelNumber)->first();
-
-        if($matchDetails->gameStatus == "over"){
-            return redirect()->route('playView');
-        }
-
-        $whitePlayerId = $matchDetails->whitePlayer;
-        $blackPlayerId = $matchDetails->blackPlayer;
-
-        $whitePlayerDetail = User::where('id', '=', $whitePlayerId)->first();
-        $blackPlayerDetail = User::where('id', '=', $blackPlayerId)->first();
-
-        $whitePlayerRatingDetail = Rating::where('userId', '=', $whitePlayerId)->first();
-        $blackPlayerRatingDetail = Rating::where('userId', '=', $blackPlayerId)->first();
-
-        $currentDateTime = new DateTime();
-        $currentTime = $currentDateTime->format('Y-m-d H:i:s');
-
-        $startingfenPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1";
-        $finalfenPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1";
-
-        $whiteRating;
-        $blackRating;
-
-        $whiteRemainingTime;
-        $blackRemainingTime;
-
-        $move = null;
-
-        //Find difference between current time and time of recorded gameDetails
-        $currentDateTime = new DateTime();
-        $currentTime = $currentDateTime->format('Y-m-d H:i:s');
-        $gameRecorded = DateTime::createFromFormat('Y-m-d H:i:s', $matchDetails->recordedTime);
-
-        $interval = $currentDateTime->diff($gameRecorded);
-
-        $secondDiff = $interval->s;
-        $secondDiff+= $interval->i * 60;
-        $secondDiff += $interval->h * 3600;
-
-        //set initial setting of game
-        //If reloading in initial time then update white's time
-        if($matchDetails->gameType == "blitz"){
-            $whiteRating = $whitePlayerRatingDetail->blitz;
-            $blackRating = $blackPlayerRatingDetail->blitz;
-
-            $whiteRemainingTime = 1 * 60 - $secondDiff;
-            $blackRemainingTime = 1 * 60;
-
-        }
-        else if($matchDetails->gameType == "bullet"){
-            $whiteRating = $whitePlayerRatingDetail->bullet;
-            $blackRating = $blackPlayerRatingDetail->bullet;
-
-            $whiteRemainingTime = 3 * 60 - $secondDiff;
-            $blackRemainingTime = 3 * 60;
-        }
-        else{
-            $whiteRating = $whitePlayerRatingDetail->classic;
-            $blackRating = $blackPlayerRatingDetail->classic;
-
-            $whiteRemainingTime = 10 * 60 - $secondDiff;
-            $blackRemainingTime = 10 * 60;
-        }
-
-        //Find whose turn to move
+        //Receives all the matches from database
+        $allFenPositions = MatchController::getAllFenPositionDetails($matchType, $matchNumber);
         
-        //only update time of player to move
+        $allMoves;
+        $userInformation;
 
-        $currentMove = Move::where('matchNumber', '=', $onlineChannelNumber)
-        ->orderBy('id', 'desc')
-        ->first();
+        //Now get all the details of player
+        //PLayer Details in stockfish_match table
+        if($matchType == "Stockfish"){
 
-        //If record not at the starting of match exist of the match
-        if($currentMove != null){
+            $allMoves = StockfishMove::where('matchNumber', $matchNumber)
+            ->orderBy('id', 'asc')
+            ->pluck('move')
+            ->toArray();
 
-            //find whose turn to move
-            $currentFen = $currentMove->finalFenPosition;
-            $fenParts = explode(" ", trim($currentMove));
-            $turnToMove = $fenParts[1];
+            //find color of player
+            $playerId = stockfish_matche::where('id' , '=', $matchNumber)->value('playerId');
+            $playerColor = stockfish_matche::where('id' , '=', $matchNumber)->value('playerColor');
+            $playerDetails = User::where('id', '=', $playerId)->first();
 
-            //time of last move recorded
-            $recordedTimeLastMove = DateTime::createFromFormat('Y-m-d H:i:s', $currentMove->recordedTime);
-
-            //currently remaining time
-            $whiteRemainingTime = $currentMove->remainingTimeWhite;
-            $blackRemainingTime = $currentMove->remainingTimeBlack;
-
-            //difference between recordedTimeLastMove and current time
-            $interval = $currentDateTime->diff($recordedTimeLastMove);
-            
-
-            $secondDiff = $interval->s;
-            $secondDiff+= $interval->i * 60;
-            $secondDiff += $interval->h * 3600;
-
-            //if white turn to move
-            if($turnToMove == 'b'){
-                $whiteRemainingTime -= $secondDiff;
+            if($playerColor == 'w'){
+                $userInformation = [
+                    "blackPlayerName" => "Stockfish",
+                    "blackPlayerImage" => "Stockfish",
+                    "whitePlayerName" => $playerDetails->name,
+                    "whitePlayerImage" => $playerDetails->image
+                ];
             }
-            //if black turn to move
             else{
-                $blackRemainingTime -= $secondDiff;
+                $userInformation = [
+                    "blackPlayerName" => $playerDetails->name,
+                    "blackPlayerImage" => $playerDetails->image,
+                    "whitePlayerName" => "Stockfish",
+                    "whitePlayerImage" => "Stockfish"
+                ];
             }
             
+            
+        }
+        //Players Details in match table
+        else{
+            $allMoves = Move::where('matchNumber', $matchNumber)
+            ->orderBy('id', 'asc')
+            ->pluck('move')
+            ->toArray();
 
-            $startingfenPos = $currentMove->startingFenPosition;
-            $finalfenPos = $currentMove->finalFenPosition;
+            $matchDetail = Matche::where('id', '=', $matchNumber)->first();
+            $whitePlayerDetails = User::where('id','=' , $matchDetail->whitePlayer)->first();
+            $blackPlayerDetails = User::where('id', '=' , $matchDetail->blackPlayer)->first();
 
-            $move = $currentMove->move;
+            $blackPlayerImage = $blackPlayerDetails->image;
+
+            $userInformation = [
+                "blackPlayerName" => $blackPlayerDetails->name,
+                "blackPlayerImage" => $blackPlayerDetails->image,
+                "whitePlayerName" => $whitePlayerDetails->name,
+                "whitePlayerImage" => $whitePlayerDetails->image
+            ];
         }
 
-        $startingfenPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
-        $data = array();
         $data = [
-            "playerInfomation" => [
-                "yourId" => $loggedUser->id,
-                "yourName" => $loggedUser->name,
-                "playerWhiteId" => $whitePlayerDetail->id,
-                "playerWhiteName" => $whitePlayerDetail->name,
-                "playerWhiteRating" => $whiteRating,
-                "playerBlackId" => $blackPlayerDetail->id,
-                "playerBlackName" => $blackPlayerDetail->name,
-                "playerBlackRating" => $blackRating,
-                "whitePlayerImage" => "",
-                "blackPlayerImage" => ""
-
-            ],
-            "boardDetails" => [
-                "startingFenPosition" => $startingfenPos,
-                "whiteRemainingTime" => $whiteRemainingTime,
-                "blackRemainingTime" => $blackRemainingTime,
-                "allfinalFenPosition" => [],
-                "allMove" => [],
-                "castelDetails" => MatchController::returnInitialCastelDetails()
-            ],
-            "gameDetails" => [
-                "channelNumber" => $onlineChannelNumber,
-                "gameType" => $matchDetails->gameType
-            ]
+            'finalFenPositions' => $allFenPositions ,
+            'allMoves' => $allMoves,
         ];
 
-        return view('responsive.onlinechessground', compact('data'));
+        return view('responsive.analysismatch', compact('data'), compact('userInformation'));
+        
     }
 
     public function redirectEnginePlayGround($matchNumber){
@@ -226,68 +145,341 @@ class MatchController extends Controller
         }
     }
 
-        //Start game from beginning
-        public function initialGameStarting($userDetails, $playerWhiteId, $playerWhiteName, $playerWhiteImage, $playerBlackId, $playerBlackName, $playerBlackImage, $matchType, $matchNumber){
+    
+    public function getAllFenPositionDetails($matchType, $matchNumber){
+        $startingfenPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        $allFinalFenPosInDB;
 
-            //check if match is over or not
-            //fetch data form stockfish_moves where id = $matchnumber
+        $userInformation;
 
-            $finalMoveInDB = StockfishMove::where('matchNumber', $matchNumber)
-                            ->orderBy('id', 'desc')
-                            ->value('move');
+        $data = [];
+
+        if($matchType == "Stockfish"){
+            $allFinalFenPosInDB = StockfishMove::where('matchNumber', $matchNumber)
+            ->orderBy('id', 'asc')
+            ->pluck('finalFenPosition')
+            ->toArray();
+
+        }
+        else{
+            $allFinalFenPosInDB = Move::where('matchNumber', $matchNumber)
+            ->orderBy('id', 'asc')
+            ->pluck('finalFenPosition')
+            ->toArray();
+        }
+
+        if (is_null($allFinalFenPosInDB)) {
+
+            $data[] = $startingfenPos;
+        } else {
+
+            array_unshift($data, $startingfenPos);
+            $data = array_merge($data, $allFinalFenPosInDB);
+        }
+
+        return $data;
+    }
+
+    public function updatePlayerRating(Request $request){
+
+        $postData = $request->all();
+
+        $match = Matche::where('id', '=', $postData["matchId"])->first();
+
+        $whitePlayerRating = Rating::where('id', '=', $postData["playerWhiteId"])->first();
+        $blackPlayerRating = Rating::where('id', '=', $postData["playerBlackId"])->first();
+        
+        //update rating
+        if($postData["gameType"] == 'blitz'){
+            $whitePlayerRating->blitz = $postData['updatedWhiteId'];
+            $blackPlayerRating->blitz = $postData['updatedBlackId'];
+        }
+        else if($postData["gameType"] == 'bullet'){
+            $whitePlayerRating->bullet = $postData['updatedWhiteId'];
+            $blackPlayerRating->bullet = $postData['updatedBlackId'];
+        }
+        else{
+            $whitePlayerRating->classic = $postData['updatedWhiteId'];
+            $blackPlayerRating->classic = $postData['updatedBlackId'];
+        }
+        //update game data
+        $whitePlayerRating->save();
+        $blackPlayerRating->save();
+
+        $match->gameStatus = "over";
+        $match->save();
+    }
+
+    public function onlineMultiplayer(Request $request, $onlineChannelNumber){
+
+        //Logged User or currently requesed user
+        $loggedUser = auth()->user();
+
+        $currentMatchDetail = Matche::where('id', '=', $onlineChannelNumber)->first();
+
+        //Match does not exist
+        if($currentMatchDetail == null){
+            return redirect()->route('playView');
+        }
+
+        $playerWhite = User::where('id', '=', $currentMatchDetail->whitePlayer)->first();
+        $playerBlack = User::where('id', '=', $currentMatchDetail->blackPlayer)->first();
+
+        //Some person trying to access is either black or white player
+        if($playerWhite->id == $loggedUser->id || $playerBlack->id == $loggedUser->id){
+
+            $gameType = $currentMatchDetail->gameType;
+            
+            $playerWhiteRating = Rating::where('id', '=', $currentMatchDetail->whitePlayer)->value($gameType);
+            $playerBlackRating = Rating::where('id', '=', $currentMatchDetail->blackPlayer)->value($gameType);
+
+            //check if position is already checkmated
+            //get the final move and check its length is equal to 4 or 5
+            $finalMoveInDB = Move::where('matchNumber', $currentMatchDetail->id)
+            ->orderBy('id', 'desc')
+            ->value('move');
 
             //Already move has been played
             if($finalMoveInDB != null){
+
+                //Make move to array and check its length to find out weather match is over or not
+                //if checkmated or draw or match over by time redirect to main page
                 $moveArray = explode(' ', $finalMoveInDB);
 
                 //If match is already draw or checkmate
                 if(count($moveArray) == 4 || count($moveArray) == 5){
                     return redirect()->route('playView');
                 }
+
+                //check remaining time
+                $whiteRemainingTime = Move::where('matchNumber', $currentMatchDetail->id)
+                ->orderBy('id', 'desc')
+                ->value('remainingTimeWhite');
+
+                $blackRemainingTime = Move::where('matchNumber', $currentMatchDetail->id)
+                ->orderBy('id', 'desc')
+                ->value('remainingTimeBlack');
+
+                $moveInsertedDate = Move::where('matchNumber', $currentMatchDetail->id)
+                ->orderBy('id', 'desc')
+                ->value('recordedTime');
+
+                //If time is over of any two players
+                if(MatchController::findFinalTime($whiteRemainingTime, $moveInsertedDate) < 1 || MatchController::findFinalTime($blackRemainingTime, $moveInsertedDate) < 1){
+                    
+                    return redirect()->route('playView');
+                }
+
+                //If game requested is not over and time is still remaining get all moves and finalFenPositions
+                $allMovesInDB = Move::where('matchNumber', $currentMatchDetail->id)
+                ->orderBy('id', 'asc')
+                ->pluck('move')
+                ->toArray();
+
+                $allFinalFenPosInDB = Move::where('matchNumber', $currentMatchDetail->id)
+                ->orderBy('id', 'asc')
+                ->pluck('finalFenPosition')
+                ->toArray();
+
+                //Find which player made final move
+                $lastfinalFenRecorded = Move::where('matchNumber', '=', $onlineChannelNumber)
+                ->orderBy('id', 'desc')
+                ->value('finalFenPosition');
+
+                $lastFenArray = explode(" ", trim($lastfinalFenRecorded));
+                $playerColorRecentlyMoved = $lastFenArray[1];
+
+                //just reduce time of that player who did not made move
+                if($playerColorRecentlyMoved == 'w'){
+                    $whiteRemainingTime = MatchController::findFinalTime($whiteRemainingTime, $moveInsertedDate);
+                }
+                else{
+                    $blackRemainingTime = MatchController::findFinalTime($blackRemainingTime, $moveInsertedDate);
+                }
+
+                $data = MatchController::generateGameDataArray($loggedUser, $playerWhite, $playerBlack, $playerWhiteRating, $playerBlackRating, $whiteRemainingTime, $blackRemainingTime, $onlineChannelNumber, $allFinalFenPosInDB, $allMovesInDB);
+    
+                return view('responsive.onlinechessground', compact('data'));
             }
+            //The Game has just been started
+            else{
 
-            //If match has already ended player will not reach here
+                $whiteRemainingTime;
+                $blackRemainingTime;
 
-            $allMovesInDB = StockfishMove::where('matchNumber', $matchNumber)
-            ->orderBy('id', 'asc')
-            ->pluck('move')
-            ->toArray();
+                //find initially played moves and final positions
+                if($gameType == 'blitz'){
+                    $whiteRemainingTime = MatchController::findFinalTime( 1 * 60, $currentMatchDetail->recordedTime);
+                    $blackRemainingTime = 1 * 60;
+                }
+                else if($gameType == 'bullet'){
+                    $whiteRemainingTime = MatchController::findFinalTime( 3 * 60, $currentMatchDetail->recordedTime);
+                    $blackRemainingTime = 3 * 60;
+                }
+                else if($gameType == 'classic'){
+                    $whiteRemainingTime = MatchController::findFinalTime( 10 * 60, $currentMatchDetail->recordedTime);
+                    $blackRemainingTime = 10 * 60;
+                }
 
-            $allFinalFenPosInDB = StockfishMove::where('matchNumber', $matchNumber)
-            ->orderBy('id', 'asc')
-            ->pluck('finalFenPosition')
-            ->toArray();
-            
-            $startingfenPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+                if($whiteRemainingTime < 1){
+                    return redirect()->route('playView');
+                }
+
+                //Get data if match has just started
+                $data = MatchController::generateGameDataArray($loggedUser, $playerWhite, $playerBlack, $playerWhiteRating, $playerBlackRating, $whiteRemainingTime, $blackRemainingTime, $onlineChannelNumber, [], []);
     
-            $data = array();
-            $data = [
-                "playerInfomation" => [
-                    "yourId" => $userDetails->id,
-                    "yourName" => $userDetails->name,
-                    "playerWhiteId" => $playerWhiteId,
-                    "playerWhiteName" => $playerWhiteName,
-                    "playerBlackId" => $playerBlackId,
-                    "playerBlackName" => $playerBlackName,
-                    "whitePlayerImage" => $playerWhiteImage,
-                    "blackPlayerImage" => $playerBlackImage
-    
-                ],
-                "boardDetails" => [
-                    "startingFenPosition" => $startingfenPos,
-                    "allfinalFenPosition" => $allFinalFenPosInDB,
-                    "allMove" => $allMovesInDB,
-                    "castelDetails" => MatchController::returnInitialCastelDetails()
-                ],
-                "gameDetails" => [
-                    "level" => $matchType,
-                    "channelNumber" => $matchNumber,
-                    "gameType" => "stockfish"
-                ]
-            ];
-    
-            return view('responsive.engineplayground', compact('data'));
+                return view('responsive.onlinechessground', compact('data'));
+            }
         }
+        else{
+            return redirect()->route('playView');
+        }
+    }
+
+    public function findFinalTime($remaining, $moveInsertedDate){
+        $currentDateTime = new DateTime();
+        $currentTime = $currentDateTime->format('Y-m-d H:i:s');
+        $gameRecorded = DateTime::createFromFormat('Y-m-d H:i:s', $moveInsertedDate);
+
+        $interval = $currentDateTime->diff($gameRecorded);
+
+        $secondDiff = $interval->s;
+        $secondDiff+= $interval->i * 60;
+        $secondDiff += $interval->h * 3600;
+
+        return ($remaining - $secondDiff);
+    }
+
+    public function generateGameDataArray($loggedUser, $playerWhite, $playerBlack, $playerWhiteRating, $playerBlackRating, $whiteRemainingTime, $blackRemainingTime, $onlineChannelNumber, $allfinalFenPositions, $allMoves) {
+
+        $startingfenPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+        $data = [
+            "playerInfomation" => [
+                "yourId" => $loggedUser->id,
+                "yourName" => $loggedUser->name,
+                "playerWhiteId" => $playerWhite->id,
+                "playerWhiteName" => $playerWhite->name,
+                "playerWhiteRating" => $playerWhiteRating,
+                "playerBlackId" => $playerBlack->id,
+                "playerBlackName" => $playerBlack->name,
+                "playerBlackRating" => $playerBlackRating,
+                "whitePlayerImage" => $playerWhite->image,
+                "blackPlayerImage" => $playerBlack->image
+            ],
+            "boardDetails" => [
+                "startingFenPosition" => $startingfenPos,
+                "whiteRemainingTime" => $whiteRemainingTime,
+                "blackRemainingTime" => $blackRemainingTime,
+                "allfinalFenPosition" => $allfinalFenPositions,
+                "allMove" => $allMoves,
+                "castelDetails" => MatchController::returnInitialCastelDetails()
+            ],
+            "gameDetails" => [
+                "channelNumber" => $onlineChannelNumber,
+                "gameType" => "bullet"
+            ]
+        ];
+
+        return $data;
+    }
+
+    public function broadCastPlayerMove(Request $request) {
+
+        $postData = $request->all();
+
+        // Broadcast the event with the data
+        event(new PlayerMadeMove($postData));
+    
+        return response()->json(['message' => 'Event broadcasted successfully', 'data' => $postData]);
+    }
+
+    public function recordMoveInDB(Request $request){
+
+        $postData = $request->all();
+
+        $currentDateTime = new DateTime();
+        $time = $currentDateTime->format('Y-m-d H:i:s');
+
+        $match = Move::create([
+            'matchNumber' => $postData['matchNumber'],
+            'startingFenPosition' => $postData['startingFenPosition'],
+            'finalFenPosition'=> $postData['finalFenPosition'],
+            'move' => $postData['move'],
+            'remainingTimeBlack' => $postData['remainingTimeBlack'],
+            'remainingTimeWhite' => $postData['remainingTimeWhite'],
+            'recordedTime' => $time
+        ]);
+    }
+
+    public function broadCastPlayerMessage(Request $request){
+
+        $postData = $request->all();
+
+        event(new PlayerMessage($postData['channelNumber'], $postData['id'], $postData['msg']));
+    }
+
+    //Start game from beginning
+    public function initialGameStarting($userDetails, $playerWhiteId, $playerWhiteName, $playerWhiteImage, $playerBlackId, $playerBlackName, $playerBlackImage, $matchType, $matchNumber){
+
+        //check if match is over or not
+        //fetch data form stockfish_moves where id = $matchnumber
+        $finalMoveInDB = StockfishMove::where('matchNumber', $matchNumber)
+                        ->orderBy('id', 'desc')
+                        ->value('move');
+
+        //Already move has been played
+        if($finalMoveInDB != null){
+            $moveArray = explode(' ', $finalMoveInDB);
+
+            //If match is already draw or checkmate
+            if(count($moveArray) == 4 || count($moveArray) == 5){
+                return redirect()->route('playView');
+            }
+        }
+
+        //If match has already ended player will not reach here
+
+        $allMovesInDB = StockfishMove::where('matchNumber', $matchNumber)
+        ->orderBy('id', 'asc')
+        ->pluck('move')
+        ->toArray();
+
+        $allFinalFenPosInDB = StockfishMove::where('matchNumber', $matchNumber)
+        ->orderBy('id', 'asc')
+        ->pluck('finalFenPosition')
+        ->toArray();
+        
+        $startingfenPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+        $data = array();
+        $data = [
+            "playerInfomation" => [
+                "yourId" => $userDetails->id,
+                "yourName" => $userDetails->name,
+                "playerWhiteId" => $playerWhiteId,
+                "playerWhiteName" => $playerWhiteName,
+                "playerBlackId" => $playerBlackId,
+                "playerBlackName" => $playerBlackName,
+                "whitePlayerImage" => $playerWhiteImage,
+                "blackPlayerImage" => $playerBlackImage
+
+            ],
+            "boardDetails" => [
+                "startingFenPosition" => $startingfenPos,
+                "allfinalFenPosition" => $allFinalFenPosInDB,
+                "allMove" => $allMovesInDB,
+                "castelDetails" => MatchController::returnInitialCastelDetails()
+            ],
+            "gameDetails" => [
+                "level" => $matchType,
+                "channelNumber" => $matchNumber,
+                "gameType" => "stockfish"
+            ]
+        ];
+
+        return view('responsive.engineplayground', compact('data'));
+    }
 
     public function recordMovesWithEngine(Request $request) {
         $postData = $request->json()->all(); // Assuming you are receiving JSON data
@@ -315,18 +507,6 @@ class MatchController extends Controller
     
         // You can also return the newly created move if needed
         return $move;
-    }
-    
-
-    public function broadCastPlayerMove(Request $request) {
-
-        $postData = $request->all();
-        echo json_encode($postData);
-
-        // Broadcast the event with the data
-        event(new PlayerMadeMove($postData));
-    
-        return response()->json(['message' => 'Event broadcasted successfully', 'data' => $postData]);
     }
 
     public function insertEngineMatchDetails(Request $request){

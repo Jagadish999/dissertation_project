@@ -1,4 +1,4 @@
-<div class = "main-container">
+<div class = "main-chess-board-moves">
 
     <div class = "chessBrd-area">
 

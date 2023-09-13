@@ -13,6 +13,8 @@
 
     <link rel="stylesheet" href="/css/dashboard/style.css">
     <link rel="stylesheet" href="/css/play/engine.css">
+
+    <link rel="stylesheet" href="/css/play/online.css">
     
     <script src = "/js/chess/chess.js"></script>
     
@@ -50,9 +52,36 @@
 
             console.log("From Event Listener");
 
-            serverData.boardDetails = event.apiData.boardDetails;
-            main();
+            if(yourId == blackId || yourId == whiteId){
+                serverData.boardDetails = event.apiData.boardDetails;
+                main();
+            }
         });
+
+        Echo.join('MessageSent').listen('PlayerMessage', (event) => {
+
+            if(event.playerId == whiteId || event.playerId == blackId){
+
+                const msgArea = document.getElementsByClassName('all-chats')[0];
+
+                const msgClass = event.playerId == yourId ? "chat-self" : "chat-opponent";
+
+                msgArea.appendChild(createChatSelfElement(event.playerMessage, msgClass));
+
+                document.getElementsByClassName('chat-details')[0].style.display = 'block';
+                document.getElementsByClassName('moves-details')[0].style.display = 'none';
+            }
+        });
+
+        function createChatSelfElement(message, className) {
+
+            const chatElement = document.createElement("div");
+
+            chatElement.classList.add(className);
+            chatElement.textContent = message;
+
+            return chatElement;
+        }
 
     </script>
     

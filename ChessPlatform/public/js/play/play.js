@@ -1,24 +1,20 @@
 //Record of all the players waiting to play matches
 let playersRequested = [];
 
+//Player Found and both players are redirected
 Echo.join('PlayerMatchedSuccessfully')
 .listen('PlayerRedirection', (event) => {
 
     const eventData =  event.matchedPlayer;
-    console.log(eventData);
-
-    console.log("Channel Id is: " + eventData.channelId);
 
     if(userInfos.id == eventData.player1Id || userInfos.id == eventData.player2Id){
-        console.log("You Will be redirected");
         window.location.href = '/play/online/' + eventData.channelId;
     }
 });
 
+//Players Submitted search request to play
 Echo.join('onlineUsers')
 .listen('MatchMaking', (event) => {
-
-    console.log("Player inserted data");
             
     const playerFindingMatch = JSON.parse(event.data);
 
@@ -33,8 +29,6 @@ Echo.join('onlineUsers')
 
         // You have found the player to play match
         if(playersRequested.length > 0 && matchingPlayerInfo != -1){
-
-            console.log("Player found");
             
             //if matching player is found clear all the previous requests
             clearAllGameRequest(playersRequested, playerFindingMatch.id, matchingPlayerInfo.id);
@@ -45,12 +39,8 @@ Echo.join('onlineUsers')
                 gameType : playerFindingMatch.gameMode
             };
 
-            console.log("You will trigger Event: " + userInfos.id == playersRequested.id);
-
             //Only one of the player will load post method and trigger the event
             if(userInfos.id == matchingPlayerInfo.id){
-
-                console.log("Players will be redirected");
 
                 //Trigger Event that enters matched players in play ground
                 const redirectURL = "/playersMatched";
@@ -109,7 +99,6 @@ function clearAllGameRequest(dataArray, playerId1, playerId2) {
 function runMatchMakingEvents(){
 
     const getOrPostRequestObj = new GetOrPostRequest();
-
     //Keep track of players selecting game modes blitz bullet or classic
     const gameModeSelectBtn = document.getElementsByClassName('GameMode');
     
@@ -137,19 +126,11 @@ function runMatchMakingEvents(){
                 rating : rating
             }
 
-            console.log("Player selected gametype: ");
-            console.log(data);
-
             //Trigger Event that notifies all players waiting to play
             getOrPostRequestObj.sendPostRequest(data, "/playerSelectedGameType");
         });
     }
 }
-
-
-
-
-
 
 function mainFunctionLoader(){
     gameModeSelected();
@@ -182,7 +163,6 @@ function gameModeSelected(){
 
     const playAsWhite = document.getElementsByClassName('white');
     const playAsBlack = document.getElementsByClassName('black');
-
 
     const getOrPostRequestObj = new GetOrPostRequest();
 
@@ -225,7 +205,6 @@ function gameModeSelected(){
             }
         });
     }
-
 }
 
 function dotAnimation(){

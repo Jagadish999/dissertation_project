@@ -15,6 +15,18 @@ class ChessElementHandler {
 
     }
 
+    getBoardWithRequiredSize(size, fenPosition, playerColor){
+
+        const emptyBrdObj = new BlankChessBoard('#b48766', '#edd9b6', size, size);
+        const emptyBrd = emptyBrdObj.createBoard();
+        const pieceSetter = new ChessPieceSetter(emptyBrd, fenPosition, playerColor)
+
+        
+        const brwWithPieces = pieceSetter.setPieces();
+
+        return brwWithPieces;
+    }
+
     createEmptyBoard() {
         return this.emptyBoardObj.createBoard();
     }
@@ -65,7 +77,6 @@ class ChessElementHandler {
     }
 
     setHintForPlayer(sq1, sq2){
-        console.log(sq1, sq2, 'asdjnasjdnkasdn');
         this.boardWithPieces.getElementsByClassName(sq1)[0].style.backgroundColor = "red";
         this.boardWithPieces.getElementsByClassName(sq1)[0].style.border = "2px solid black";
 

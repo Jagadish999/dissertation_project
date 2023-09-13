@@ -28,7 +28,6 @@
 
     <script>
         const userInfos = @json($userDetails);
-        console.log(userInfos);
     </script>
 
 </body>

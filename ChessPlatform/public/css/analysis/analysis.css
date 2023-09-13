@@ -1,0 +1,117 @@
+
+.analysis-main-container{
+    position: fixed;
+    margin-left: 20%;
+
+    padding: 20px 20px 0 10px;
+
+    height: 100%;
+    width: 80%;
+
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+    
+}
+
+.online-Matches h1{
+    font-size: 30px;
+    font-weight: 500;
+    color: black;
+    padding: 12px 60px;
+    text-align: center;
+    margin-bottom: 20px;
+
+    background-color: rgba(33, 33, 33, 0.4);
+}
+
+.playerDetails img{
+    height: 80px;
+    width: 80px;
+
+    border-radius: 50%;
+    border: 2px solid black;
+    margin-right: 20px;
+    margin-left: 20px;
+}
+
+.match-details{
+    width: 100%;
+    height: 250px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+
+    margin-bottom: 18px;
+    
+    box-shadow: 4px 3px 12px rgba(0, 0, 0, 0.5);
+    justify-content: space-evenly;
+}
+
+
+.fenPos, .fenPosEngine{
+    width: 30%;
+}
+
+.playerDetails {
+    width: 30%;
+
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ccc
+}
+
+.playerWhite,
+.playerBlack {
+    display: flex;
+    align-items: center; /* Center items vertically */
+    margin: 10px 0; /* Add vertical spacing between playerWhite and playerBlack */
+}
+
+.matchDetails{
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+
+    margin-top: 80px;
+    text-align: center;
+}
+
+
+/* Style the button container */
+.button {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.button a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: #007bff; 
+    color: #fff; 
+    border: none; 
+    border-radius: 5px; 
+    transition: background-color 0.3s; 
+}
+
+.button a:hover {
+    background-color: #0056b3; /* Change color on hover */
+}
+
+.button i {
+    margin-right: 10px;
+}
+
+.button a.continue {
+    background-color: #28a745;
+}
+
+.button a.continue:hover {
+    background-color: #1e7e34;
+}

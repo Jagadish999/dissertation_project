@@ -32,6 +32,13 @@
                     </li>
 
                     <li class="nav-link">
+                        <a href="/analysis">
+                            <i class="fas fa-chart-line icon"></i>
+                            <span class="text nav-text">Analysis</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-link">
                         <a href="/leaderboard">
                             <i class="fas fa-trophy icon"></i>
                             <span class="text nav-text">Leaderboard</span>
@@ -49,13 +56,6 @@
                         <a href="/addpuzzle">
                             <i class="fas fa-plus-square icon"></i>
                             <span class="text nav-text">Add Puzzles</span>
-                        </a>
-                    </li>
-
-                    <li class="nav-link">
-                        <a href="/analysis">
-                            <i class="fas fa-chart-line icon"></i>
-                            <span class="text nav-text">Analysis</span>
                         </a>
                     </li>
 

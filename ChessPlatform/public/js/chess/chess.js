@@ -7,11 +7,269 @@ function main(){
         engineGameHandler();
     }
     else if(serverData.gameDetails.gameType == "blitz" || serverData.gameDetails.gameType == "bullet" || serverData.gameDetails.gameType == "classic"){
-        initialEngineMatchSetUp();
-        multiplayerGameHandler();
+
+        initialBtnSetup = null;
+    
+        initialBtnSetup = initialOnlineMatchSetup();
         
+        multiplayerGameHandler();
     }
 }
+
+
+function gameOver(winningPlayerColor, endingDetail){
+
+    const gameOverMessage = document.getElementsByClassName('gameOver-popup')[0];
+    const mainContainer = document.getElementsByClassName('main-chess-board-moves')[0];
+
+    const cross = document.getElementsByClassName('sign-area-gameover')[0].getElementsByTagName('span')[0];
+    const exit = document.getElementsByClassName('Game-Over-exit')[0];
+
+    gameOverMessage.style.display = 'block';
+    mainContainer.className += " blure";
+
+    cross.addEventListener('click', () => {
+        gameOverMessage.style.display = 'none';
+        mainContainer.className = "main-chess-board-moves";
+    });
+
+    exit.addEventListener('click', () => {
+        window.location.href = '/play';
+    });
+
+    const gameOverHeading = document.getElementsByClassName('game-over-details')[0].getElementsByTagName('h1')[0];
+    gameOverHeading.textContent = endingDetail;
+
+    const playerWhite = document.getElementsByClassName('playerWhite')[0];
+    const playerBlack = document.getElementsByClassName('playerBlack')[0];
+
+    const playerWhiteDetails = playerWhite.getElementsByTagName('h2')[0];
+    const playerBlackDetails = playerBlack.getElementsByTagName('h2')[0];
+
+    const whiteRating = serverData.playerInfomation.playerWhiteRating;
+    const blackRating = serverData.playerInfomation.playerBlackRating;
+    const whiteName = serverData.playerInfomation.playerWhiteName;
+    const blackName = serverData.playerInfomation.playerBlackName;
+
+    if(winningPlayerColor == 'w'){
+
+        console.log("white won");
+
+        playerWhite.className += " winner";
+        playerBlack.className += " looser";
+
+        playerWhiteDetails.textContent =  whiteName + " [ " + whiteRating + " + 4 ] = " + (parseInt(whiteRating) + 4);
+        playerBlackDetails.textContent =  blackName + " [ " + blackRating + " - 4 ] = " + (parseInt(blackRating) - 4); 
+
+    }
+    else if(winningPlayerColor == 'b'){
+
+        console.log("black won");
+
+        playerWhite.className += " looser";
+        playerBlack.className += " winner";
+
+        playerBlackDetails.textContent =  blackName + " [ " + blackRating + " + 4 ] = " + (parseInt(blackRating) + 4); 
+        playerWhiteDetails.textContent =  whiteName + " [ " + whiteRating + " - 4 ] = " + (parseInt(whiteRating) - 4); 
+    }
+    else{
+
+        playerWhite.className += " winner";
+        playerBlack.className += " winner";
+
+        playerBlackDetails.textContent =  blackName + " [ " + blackRating + " + 0 ] = " + blackRating; 
+        playerWhiteDetails.textContent =  whiteName + " [ " + whiteRating + " + 0 ] = " + whiteRating; 
+    }
+
+    //Only one player will be inserting value 
+    if(winningPlayerColor != null){
+
+        if(winningPlayerColor == 'w' && serverData.playerInfomation.yourId == serverData.playerInfomation.playerWhiteId){
+
+            const requiredData = {
+                "playerBlackId" : serverData.playerInfomation.playerBlackId,
+                "playerWhiteId" : serverData.playerInfomation.playerWhiteId,
+                "updatedWhiteId" : whiteRating + 4,
+                "updatedBlackId" : blackRating - 4,
+                "matchId" : serverData.gameDetails.channelNumber,
+                "gameType" : serverData.gameDetails.gameType
+            };
+
+            callPostMethod(requiredData, "/updateRating", "POST");
+        }
+        else if(winningPlayerColor == 'b' && serverData.playerInfomation.yourId == serverData.playerInfomation.playerBlackId){
+            const data = {
+                whiteRating : whiteRating - 4,
+                blackRating : blackRating + 4
+            };
+            callPostMethod(data, "/updateRating", "POST");
+        }
+    }
+}
+
+let initialBtnSetup;
+
+let yourTime;
+let opponentTime;
+
+let yourTimeInterval;
+let opponentTimeInterval;
+
+function initialOnlineMatchSetup(){
+
+    const currentFenPosition = serverData.boardDetails.allfinalFenPosition.length == 0 ? serverData.boardDetails.startingFenPosition : serverData.boardDetails.allfinalFenPosition[serverData.boardDetails.allfinalFenPosition.length - 1];
+
+    //Set your and opponent time
+    yourTime = serverData.playerInfomation.yourId == serverData.playerInfomation.playerWhiteId ? serverData.boardDetails.whiteRemainingTime : serverData.boardDetails.blackRemainingTime;
+
+    opponentTime = serverData.playerInfomation.yourId == serverData.playerInfomation.playerWhiteId ? serverData.boardDetails.blackRemainingTime : serverData.boardDetails.whiteRemainingTime;
+
+    const yourTimeHolder = document.getElementsByClassName('your')[0];
+    const oppTimeHolder = document.getElementsByClassName('opponent')[0];
+
+    const allChats = document.getElementsByClassName('chat-details')[0];
+    const allMoves = document.getElementsByClassName('moves-details')[0];
+
+    const chatBtn = document.getElementsByClassName('btn-chat')[0];
+    const movesBtn = document.getElementsByClassName('btn-move')[0];
+    const exitBtn = document.getElementsByClassName('btn-leave')[0];
+
+    chatBtn.addEventListener('click', () =>{
+        allChats.style.display = 'block';
+        allMoves.style.display = 'none';
+    });
+
+    movesBtn.addEventListener('click', () =>{
+        allChats.style.display = 'none';
+        allMoves.style.display = 'block';
+    });
+
+    exitBtn.addEventListener('click', () => {
+        window.location.href = '/play';
+    });
+
+    clearInterval(yourTimeInterval);
+    clearInterval(opponentTimeInterval);
+
+    
+    //Initially plce their time
+    timeInTextYour = secondToTime(yourTime);
+    timeInTextOpp = secondToTime(opponentTime);
+
+    placeTextInHtml(yourTimeHolder, timeInTextYour);
+    placeTextInHtml(oppTimeHolder, timeInTextOpp);
+
+    //Find whose turn to move
+
+    if(yourTime > 0 && opponentTime > 0){
+
+        //If it is your turn to move
+        if((currentFenPosition.split(" ")[1] == 'w' && serverData.playerInfomation.yourId == serverData.playerInfomation.playerWhiteId) || currentFenPosition.split(" ")[1] == 'b' && serverData.playerInfomation.yourId == serverData.playerInfomation.playerBlackId){
+            //If you are white and it is your turn to move
+            yourTimeInterval = setInterval(() => {
+
+                timeInText = secondToTime(yourTime);
+                placeTextInHtml(yourTimeHolder, timeInText);
+
+                if(yourTime > 0){
+                    yourTime--;
+                }
+                else{
+                    clearInterval(yourTimeInterval);
+                    clearInterval(opponentTimeInterval);
+
+                    if(currentFenPosition.split(" ")[1] == 'w'){
+                        serverData.boardDetails.whiteRemainingTime = 0;
+                    }
+                    else{
+                        serverData.boardDetails.blackRemainingTime = 0;
+                    }
+                    main();
+                }
+            }, 1000);
+        }
+        else {
+            opponentTimeInterval = setInterval(() => {
+
+                timeInText = secondToTime(opponentTime);
+                placeTextInHtml(oppTimeHolder, timeInText);
+
+                if(opponentTime > 0){
+                    opponentTime--;
+                }
+                else{
+                    clearInterval(opponentTimeInterval);
+                    clearInterval(yourTimeInterval);
+
+                    if(currentFenPosition.split(" ")[1] == 'w'){
+                        serverData.boardDetails.whiteRemainingTime = 0;
+                    }
+                    else{
+                        serverData.boardDetails.blackRemainingTime = 0;
+                    }
+                    main();
+                }
+            }, 1000);
+        }
+    }
+
+    //Chat Inplementation
+    const chatInputBox = document.getElementsByClassName('textByUser')[0];
+    const chatSendBtn = document.getElementsByClassName('send')[0];
+
+    chatSendBtn.addEventListener('click', () => {
+
+        if(chatInputBox.value != ""){
+            const messageToBroadCast = {
+                "id" : yourId,
+                "msg" : chatInputBox.value,
+                "channelNumber" : serverData.gameDetails.channelNumber
+            }
+            chatInputBox.value = "";
+
+            callPostMethod(messageToBroadCast, "/playerMessaged", "POST");
+        }
+    });
+
+    chatInputBox.addEventListener('keydown', (event) => {
+
+        if (event.keyCode === 13) {
+          if (chatInputBox.value !== '') {
+            const messageToBroadCast = {
+              'id': yourId,
+              'msg': chatInputBox.value,
+              'channelNumber': serverData.gameDetails.channelNumber
+            };
+            chatInputBox.value = '';
+    
+            callPostMethod(messageToBroadCast, '/playerMessaged', 'POST');
+          }
+        }
+      });
+}
+
+function placeTextInHtml(element, time){
+    while(element.firstChild){
+        element.removeChild(element.firstChild)
+    }
+    element.textContent = time;
+}
+
+function secondToTime(second){
+
+    let minute = (second - second % 60) / 60;
+    let seconds = second % 60;
+
+    if(minute < 10){
+        minute = '0' + minute;
+    }
+    if(seconds < 10){
+        seconds = '0' + seconds;
+    }
+
+    return  minute + ":" + seconds;
+}
+
 function playSoundBasedOnMove(move, check){
     
     const moveAudio = new Audio('/Sounds/move.mp3');
@@ -95,11 +353,24 @@ async function multiplayerGameHandler(){
         let htmlBoardElement = chessElementHandlerObj.getBoardWithPieces();
     
         //Manage Hint for player
-        
         chessElementHandlerObj.clearParentElement(boardContainer);
         chessElementHandlerObj. placeChildElementInParentElement(htmlBoardElement, boardContainer);
 
-        if(gamePlayable){
+        if(yourTime < 1 || opponentTime < 1){
+
+            let whiteRemainingTime = serverData.boardDetails.whiteRemainingTime;
+            let blackRemainingTime = serverData.boardDetails.blackRemainingTime;
+
+            if(whiteRemainingTime < 1){
+                gameOver('b', "Black Won On Time");
+            }
+            else if(blackRemainingTime < 1){
+                gameOver('w', "White Won On Time");
+            }
+            
+        }
+        //If time is not over and game can be continued
+        else if(gamePlayable){
 
             //Find if it is player to move
             if(currentFenPosition.split(" ")[1] == playerColor){
@@ -130,25 +401,63 @@ async function multiplayerGameHandler(){
                     serverData.boardDetails.allfinalFenPosition.push(newFenPosition);
                     serverData.boardDetails.castelDetails = newCastelDetails;
 
-                    const yourId = serverData.playerInfomation.yourId;
-                    const blackId = serverData.playerInfomation.playerBlackId;
-                    const whiteId = serverData.playerInfomation.playerWhiteId;
+                    clearInterval(yourTimeInterval);
+                    clearInterval(opponentTime);
 
-                    console.log("Player made move Id: " + yourId);
-                    broadCastAndRecordMove(serverData, "/playersMadeMove", "POST");
+                        //Set your and opponent time
+
+                    let whiteRemainingTime = currentFenPosition.split(" ")[1] == 'w' ? yourTime : opponentTime;
+                    let blackRemainingTime = currentFenPosition.split(" ")[1] == 'w' ? opponentTime : yourTime;
+
+                    serverData.boardDetails.whiteRemainingTime = whiteRemainingTime;
+                    serverData.boardDetails.blackRemainingTime = blackRemainingTime;
+
+
+                    const dataToRecord = {
+                        "matchNumber" : serverData.gameDetails.channelNumber,
+                        "startingFenPosition" : currentFenPosition,
+                        "finalFenPosition" : newFenPosition,
+                        "move" : currentMove,
+                        "remainingTimeWhite" : whiteRemainingTime,
+                        "remainingTimeBlack" : blackRemainingTime
+                    };
+
+                    console.log("Length Of Move is: " + currentMove.split(" ").length);
+
+                    callPostMethod(dataToRecord, "/recordPlayerMove", "POST");
+                    callPostMethod(serverData, "/playersMadeMove", "POST");
                     
+
                 });
             }
-            else{
-                //just view the board
-            }  
        }
+       //End Game Here
        else{
+
+        clearInterval(yourTimeInterval);
+        clearInterval(opponentTimeInterval);
+
+        const lastMoveMade = serverData.boardDetails.allMove[serverData.boardDetails.allMove.length - 1];
+        const winningPlayerColor = currentFenPosition.split(" ")[1] == 'w' ? 'b' : 'w';
+
+        if(lastMoveMade.split(" ").length == 4){
+
+            setTimeout(() => {
+                gameOver(null, "Draw");
+            }, 1500);
+
+        }
+        //Game Ended in checkMate
+        else if(lastMoveMade.split(" ").length == 5){
+            setTimeout(() => {
+                gameOver(winningPlayerColor, "CheckMate");
+            }, 1500);
+        }
 
        }
 }
   
-async function broadCastAndRecordMove(requiredData, redirectURL, method){
+async function callPostMethod(requiredData, redirectURL, method){
 
     try {
     const response = await fetch(redirectURL, {
@@ -298,7 +607,7 @@ async function engineGameHandler(){
                 }
 
                 console.log('Data player: ',  requiredDataForDB);
-                broadCastAndRecordMove(requiredDataForDB, "/engineMatchMoves", "POST");
+                callPostMethod(requiredDataForDB, "/engineMatchMoves", "POST");
 
                 main();
             });
@@ -350,7 +659,7 @@ async function engineGameHandler(){
                     "move" : move
                 }
 
-                broadCastAndRecordMove(requiredDataForDB, "/engineMatchMoves", "POST");
+                callPostMethod(requiredDataForDB, "/engineMatchMoves", "POST");
                 console.log('Data Stockfish : ',  requiredDataForDB);
 
                 setTimeout(() => {
@@ -493,7 +802,7 @@ function providePromotingOptions(){
 
     return new Promise((resolve, reject) => {
         const options = document.getElementsByClassName('matching-player-infos')[0];
-        const mainContainer = document.getElementsByClassName('main-container')[0];
+        const mainContainer = document.getElementsByClassName('main-chess-board-moves')[0];
     
         options.style.display = 'block';
         mainContainer.className += " blure";
@@ -501,7 +810,7 @@ function providePromotingOptions(){
         const cross = document.getElementsByClassName('sign-cross')[0].getElementsByTagName('span')[0];
         cross.addEventListener('click', () => {
             options.style.display = 'none';
-            mainContainer.className += "main-container";
+            mainContainer.className = "main-chess-board-moves";
 
             resolve(-1);
         });
@@ -513,27 +822,27 @@ function providePromotingOptions(){
 
         optQueen.addEventListener('click', () => {
             options.style.display = 'none';
-            mainContainer.className += "main-container";
+            mainContainer.className += "main-chess-board-moves";
 
             resolve('q');
         });
         optBishop.addEventListener('click', () => {
             options.style.display = 'none';
-            mainContainer.className += "main-container";
+            mainContainer.className += "main-chess-board-moves";
 
             resolve('b');
 
         });
         optNight.addEventListener('click', () => {
             options.style.display = 'none';
-            mainContainer.className += "main-container";
+            mainContainer.className += "main-chess-board-moves";
 
             resolve('n');
 
         });
         optRook.addEventListener('click', () => {
             options.style.display = 'none';
-            mainContainer.className += "main-container";
+            mainContainer.className += "main-chess-board-moves";
 
             resolve('r');
         });

@@ -15,16 +15,16 @@ class PlayerMessage implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $channelNumber;
-    public $playerName;
+    public $playerId;
     public $playerMessage;
 
     /**
      * Create a new event instance.
      */
-    public function __construct($channelNumber, $playerName, $playerMessage)
+    public function __construct($channelNumber, $playerId, $playerMessage)
     {
         $this->channelNumber = $channelNumber;
-        $this->playerName = $playerName;
+        $this->playerId = $playerId;
         $this->playerMessage = $playerMessage;
     }
 

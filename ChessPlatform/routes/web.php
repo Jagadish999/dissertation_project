@@ -33,10 +33,21 @@ Route::post('/playerSelectedGameType', [MatchController::class, 'MatchSelected']
 //Player Matched
 Route::post('/playersMatched', [MatchController::class, 'broadCastPlayerMatching'])->middleware(['auth', 'verified']);
 
+//Player rating updated
+Route::post('/updateRating', [MatchController::class, 'updatePlayerRating'])->middleware(['auth', 'verified']);
 
 Route::get('/play/online/{onlineChannelNumber}', [MatchController::class, 'onlineMultiplayer'])->middleware(['auth', 'verified']);
 
 Route::post('/playersMadeMove', [MatchController::class, 'broadCastPlayerMove'])->middleware(['auth', 'verified']);
+
+Route::post('/playerMessaged', [MatchController::class, 'broadCastPlayerMessage'])->middleware(['auth', 'verified']);
+
+Route::post('/recordPlayerMove', [MatchController::class, 'recordMoveInDB'])->middleware(['auth', 'verified']);
+
+
+//Route For analysis match part
+
+Route::get('/analysis/{matchType}/{matchNumber}', [MatchController::class, 'analysisMatchDetails'])->middleware(['auth', 'verified']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
