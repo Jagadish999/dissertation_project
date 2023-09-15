@@ -7,7 +7,6 @@ function analysisMain(){
 function analysisInitialSetter(){
 
     const getOrPostRequestObj = new GetOrPostRequest();
-
     
     analysisUIHandeler(counter, null);
 
@@ -22,7 +21,6 @@ function analysisInitialSetter(){
             counter++;
             analysisUIHandeler(counter, null);
         }
-        
     });
 
     previousBtn.addEventListener('click', () => {
@@ -30,7 +28,6 @@ function analysisInitialSetter(){
             counter--;
             analysisUIHandeler(counter, null);
         }
-
     });
 
     hintBtn.addEventListener('click', async () => {

@@ -9,10 +9,10 @@
         <div class = "player1Details">
 
             @if($data['playerInfomation']['playerWhiteId'] == $data['playerInfomation']['yourId'])
-                <img src="/Images/Profile/{{$data['playerInfomation']['blackPlayerImage']}}.png" alt="stockfish or player image" class="imageTop">
+                <img src="/Images/Profile/{{$data['playerInfomation']['blackPlayerImage']}}" alt="stockfish or player image" class="imageTop">
             @endif 
             @if($data['playerInfomation']['playerBlackId'] == $data['playerInfomation']['yourId'])
-                <img src="/Images/Profile/{{$data['playerInfomation']['whitePlayerImage']}}.png" alt="stockfish or player image" class="imageTop">
+                <img src="/Images/Profile/{{$data['playerInfomation']['whitePlayerImage']}}" alt="stockfish or player image" class="imageTop">
             @endif
 
             <div class = "details">
@@ -60,10 +60,10 @@
         <div class="player2Details">
 
             @if($data['playerInfomation']['playerWhiteId'] == $data['playerInfomation']['yourId'])
-                <img src="/Images/Profile/{{$data['playerInfomation']['whitePlayerImage']}}.png" alt="player image" class="imageButtom">
+                <img src="/Images/Profile/{{$data['playerInfomation']['whitePlayerImage']}}" alt="player image" class="imageButtom">
             @endif 
             @if($data['playerInfomation']['playerBlackId'] == $data['playerInfomation']['yourId'])
-                <img src="/Images/Profile/{{$data['playerInfomation']['blackPlayerImage']}}.png" alt="player image" class="imageButtom">
+                <img src="/Images/Profile/{{$data['playerInfomation']['blackPlayerImage']}}" alt="player image" class="imageButtom">
             @endif
 
             <div class="details">
@@ -151,12 +151,12 @@
         <h1>Game Over</h1>
 
         <div class = "playerWhite">
-            <img src="/Images/Profile/{{$data['playerInfomation']['whitePlayerImage']}}.png" alt="player image">
+            <img src="/Images/Profile/{{$data['playerInfomation']['whitePlayerImage']}}" alt="player image">
             <h2></h2>
         </div>
 
         <div class = "playerBlack">
-            <img src="/Images/Profile/{{$data['playerInfomation']['blackPlayerImage']}}.png" alt="player image">
+            <img src="/Images/Profile/{{$data['playerInfomation']['blackPlayerImage']}}" alt="player image">
             <h2></h2>
         </div>
     </div>

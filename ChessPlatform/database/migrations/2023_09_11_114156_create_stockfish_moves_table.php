@@ -17,7 +17,6 @@ return new class extends Migration
             $table->text('startingFenPosition');
             $table->text('finalFenPosition');
             $table->string('move');
-            // Add any other columns you need here
             $table->foreign('matchNumber')->references('id')->on('stockfish_matches');
         });
     }

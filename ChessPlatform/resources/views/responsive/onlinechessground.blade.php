@@ -50,8 +50,6 @@
         Echo.join('MoveDetaction')
         .listen('PlayerMadeMove', (event) => {
 
-            console.log("From Event Listener");
-
             if(yourId == blackId || yourId == whiteId){
                 serverData.boardDetails = event.apiData.boardDetails;
                 main();

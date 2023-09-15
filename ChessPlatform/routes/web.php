@@ -4,7 +4,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserNavigationController;
 use App\Http\Controllers\MatchController;
-use App\Http\Controllers\MatchTypeController;
+use App\Http\Controllers\ImageController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 //Routes for navigation menus
 Route::get('/dashboard', [UserNavigationController::class, 'dashboardView'])->middleware(['auth', 'verified'])->name('dashboard');
@@ -13,18 +14,25 @@ Route::get('/play', [UserNavigationController::class, 'playView'])->middleware([
 
 Route::get('/puzzle', [UserNavigationController::class, 'playPuzzleView'])->middleware(['auth', 'verified']);
 
-Route::get('/addpuzzle', [UserNavigationController::class, 'addPuzzleView'])->middleware(['auth', 'verified']);
+Route::get('/addpuzzle', [UserNavigationController::class, 'addPuzzleView'])->middleware(['auth', 'verified'])->name('playPuzzleView');
 
 Route::get('/leaderboard', [UserNavigationController::class, 'leaderBoardView'])->middleware(['auth', 'verified']);
 
 Route::get('/analysis', [UserNavigationController::class, 'gameAnalysisView'])->middleware(['auth', 'verified']);
 
+Route::get('/editprofile', [UserNavigationController::class, 'editProfileView'])->middleware(['auth', 'verified'])->name('editprofile');
+
+Route::get('/logout', [AuthenticatedSessionController::class, 'destroy'])->middleware(['auth', 'verified']);
+
+Route::post('/upload', [ImageController::class, 'upload'])->middleware(['auth', 'verified'])->name('image.upload');
 
 //Routes for match with engine
 
 Route::post('/engineMatchSelected', [MatchController::class, 'insertEngineMatchDetails'])->middleware(['auth', 'verified']);
 Route::get('/engineground/{matchNumber}', [MatchController::class, 'redirectEnginePlayGround'])->middleware(['auth', 'verified']);
 Route::post('/engineMatchMoves', [MatchController::class, 'recordMovesWithEngine'])->middleware(['auth', 'verified']);
+
+Route::post('/updatePuzzleSoved', [MatchController::class, 'updateCompletedPuzzle'])->middleware(['auth', 'verified']);
 
 
 //About to match player
@@ -46,8 +54,17 @@ Route::post('/recordPlayerMove', [MatchController::class, 'recordMoveInDB'])->mi
 
 
 //Route For analysis match part
-
 Route::get('/analysis/{matchType}/{matchNumber}', [MatchController::class, 'analysisMatchDetails'])->middleware(['auth', 'verified']);
+
+//Route to insert puzzle in db
+Route::post('/insertPuzzle', [MatchController::class, 'insertPuzzleDetails'])->middleware(['auth', 'verified']);
+
+//Route for playing puzzles
+Route::get('/play/puzzles/{puzzleNumber}', [MatchController::class, 'playPuzzlesWithEngine'])->middleware(['auth', 'verified']);
+
+
+//Leaderboard for selected gameType
+Route::get('/play/leaderboard/{gameType}', [UserNavigationController::class, 'topPlayersGameType'])->middleware(['auth', 'verified']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

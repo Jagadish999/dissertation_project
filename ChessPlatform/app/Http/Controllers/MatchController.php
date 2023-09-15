@@ -13,10 +13,301 @@ use App\Models\Move;
 use App\Models\StockfishMove;
 use App\Models\User;
 use App\Models\Rating;
+use App\Models\Puzzle;
+use App\Models\CompletedPuzzle;
+use Illuminate\Support\Facades\DB;
 use DateTime;
 
 class MatchController extends Controller
 {
+
+    public function updateCompletedPuzzle(Request $request){
+
+        $postData = $request->all();
+        $userDetails = auth()->user();
+
+        $completedPuzzleRecords = DB::table('completed_puzzles')
+        ->where('playerId', $userDetails->id)
+        ->where('puzzleId', $postData['puzzleNumber'])
+        ->get()
+        ->toArray();
+
+        if(count($completedPuzzleRecords) == 0){
+            $completedPuzzle = CompletedPuzzle::create([
+                'playerId' => $userDetails->id, 
+                'puzzleId' => $postData['puzzleNumber'],
+                'status' => "completed",
+            ]);
+        }
+
+    }
+    public function playPuzzlesWithEngine($puzzleNumber){
+
+        $userDetails = auth()->user();
+        $requestedPuzzle = Puzzle::where('id', '=', $puzzleNumber)->first();
+
+        if($requestedPuzzle == null){
+            return redirect()->route('playPuzzleView'); 
+        }
+        $startingfenPos = $requestedPuzzle->fenPosition;
+
+        $fenExploded = explode(' ', $startingfenPos);
+
+        $whitePlayerId;
+        $whitePlayerName;
+        $whitePlayerImage;
+        $blackPlayerName;
+        $blackPlayerId;
+        $blackPlayerImage;
+        
+        //If player is white
+        if($fenExploded[1] == 'w'){
+            $whitePlayerId = $userDetails->id;
+            $whitePlayerName = $userDetails->name;
+            $whitePlayerImage = $userDetails->image;
+            $blackPlayerName = "Stockfish";
+            $blackPlayerId = "Stockfish";
+            $blackPlayerImage = "Stockfish.png";
+        }
+        //if player is black
+        else{
+            $whitePlayerId = "Stockfish";
+            $whitePlayerName = "Stockfish";
+            $whitePlayerImage = "Stockfish.png";
+            $blackPlayerName  = $userDetails->name;
+            $blackPlayerId  = $userDetails->id;
+            $blackPlayerImage = $userDetails->image;
+        }
+
+        $data = array();
+
+        $data = [
+            "playerInfomation" => [
+                "yourId" => $userDetails->id,
+                "yourName" => $userDetails->name,
+                "playerWhiteId" => $whitePlayerId,
+                "playerWhiteName" => $whitePlayerName,
+                "whitePlayerImage" => $whitePlayerImage,
+
+                "playerBlackId" => $blackPlayerId,
+                "playerBlackName" => $blackPlayerName,
+                "blackPlayerImage" => $blackPlayerImage
+
+            ],
+            "boardDetails" => [
+                "startingFenPosition" => $startingfenPos,
+                "allfinalFenPosition" => [],
+                "allMove" => [],
+                "castelDetails" => MatchController::returnCastelDetails($startingfenPos)
+            ],
+            "gameDetails" => [
+                "level" => 12,
+                "channelNumber" => $puzzleNumber,
+                "gameType" => "puzzle",
+                "mateInMove" => $requestedPuzzle->numberOfMoves
+            ]
+        ];
+
+        return view('responsive.engineplayground', compact('data'));
+    }
+
+    public function returnCastelDetails($fenPosition)
+    {
+        $castelDetails = [
+            'whiteKingMoved' => true,
+            'whiteKingChecked' => true,
+            'whiteKingSideRookMoved' => true,
+            'whiteKingSideRookCaptured' => true,
+            'whiteKingSideSquaresChecked' => true,
+            'whiteQueenSideRookMoved' => true,
+            'whiteQueenSideRookCaptured' => true,
+            'whiteQueenSideSquaresChecked' => true,
+            'blackKingMoved' => true,
+            'blackKingChecked' => true,
+            'blackKingSideRookMoved' => true,
+            'blackKingSideRookCaptured' => true,
+            'blackKingSideSquaresChecked' => true,
+            'blackQueenSideRookMoved' => true,
+            'blackQueenSideRookCaptured' => true,
+            'blackQueenSideSquaresChecked' => true,
+        ];
+    
+        $castelPerms = explode(" ", $fenPosition)[2];
+    
+        for ($i = 0; $i < strlen($castelPerms); $i++) {
+            $char = $castelPerms[$i];
+            if ($char == 'K') {
+                $castelDetails['whiteKingMoved'] = false;
+                $castelDetails['whiteKingChecked'] = false;
+                $castelDetails['whiteKingSideRookMoved'] = false;
+                $castelDetails['whiteKingSideRookCaptured'] = false;
+                $castelDetails['whiteKingSideSquaresChecked'] = false;
+            } elseif ($char == 'Q') {
+                $castelDetails['whiteKingMoved'] = false;
+                $castelDetails['whiteKingChecked'] = false;
+                $castelDetails['whiteQueenSideRookMoved'] = false;
+                $castelDetails['whiteQueenSideRookCaptured'] = false;
+                $castelDetails['whiteQueenSideSquaresChecked'] = false;
+            } elseif ($char == 'k') {
+                $castelDetails['blackKingMoved'] = false;
+                $castelDetails['blackKingChecked'] = false;
+                $castelDetails['blackKingSideRookMoved'] = false;
+                $castelDetails['blackKingSideRookCaptured'] = false;
+                $castelDetails['blackKingSideSquaresChecked'] = false;
+            } elseif ($char == 'q') {
+                $castelDetails['blackKingMoved'] = false;
+                $castelDetails['blackKingChecked'] = false;
+                $castelDetails['blackQueenSideRookMoved'] = false;
+                $castelDetails['blackQueenSideRookCaptured'] = false;
+                $castelDetails['blackQueenSideSquaresChecked'] = false;
+            }
+        }
+    
+        return $castelDetails;
+    }
+    
+    //Start game from beginning
+    public function initialGameStarting($userDetails, $playerWhiteId, $playerWhiteName, $playerWhiteImage, $playerBlackId, $playerBlackName, $playerBlackImage, $matchType, $matchNumber){
+
+        //check if match is over or not
+        //fetch data form stockfish_moves where id = $matchnumber
+        $finalMoveInDB = StockfishMove::where('matchNumber', $matchNumber)
+                        ->orderBy('id', 'desc')
+                        ->value('move');
+
+        //Already move has been played
+        if($finalMoveInDB != null){
+            $moveArray = explode(' ', $finalMoveInDB);
+
+            //If match is already draw or checkmate
+            if(count($moveArray) == 4 || count($moveArray) == 5){
+                return redirect()->route('playView');
+            }
+        }
+
+        //If match has already ended player will not reach here
+
+        $allMovesInDB = StockfishMove::where('matchNumber', $matchNumber)
+        ->orderBy('id', 'asc')
+        ->pluck('move')
+        ->toArray();
+
+        $allFinalFenPosInDB = StockfishMove::where('matchNumber', $matchNumber)
+        ->orderBy('id', 'asc')
+        ->pluck('finalFenPosition')
+        ->toArray();
+        
+        $startingfenPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+        $data = array();
+        $data = [
+            "playerInfomation" => [
+                "yourId" => $userDetails->id,
+                "yourName" => $userDetails->name,
+                "playerWhiteId" => $playerWhiteId,
+                "playerWhiteName" => $playerWhiteName,
+                "playerBlackId" => $playerBlackId,
+                "playerBlackName" => $playerBlackName,
+                "whitePlayerImage" => $playerWhiteImage,
+                "blackPlayerImage" => $playerBlackImage
+
+            ],
+            "boardDetails" => [
+                "startingFenPosition" => $startingfenPos,
+                "allfinalFenPosition" => $allFinalFenPosInDB,
+                "allMove" => $allMovesInDB,
+                "castelDetails" => MatchController::returnInitialCastelDetails()
+            ],
+            "gameDetails" => [
+                "level" => $matchType,
+                "channelNumber" => $matchNumber,
+                "gameType" => "stockfish"
+            ]
+        ];
+
+        return view('responsive.engineplayground', compact('data'));
+    }
+
+    public function redirectEnginePlayGround($matchNumber){
+
+        $userInfo = auth()->user();
+
+        //match and moves details
+        $requestedMatch = stockfish_matche::where('id', '=', $matchNumber)->first();
+
+        //if requested match does not exist
+        if($requestedMatch == null){
+            return redirect()->route('playView');
+        }
+
+        $numberOfMoves = StockfishMove::where('matchNumber', '=', $matchNumber)->get();
+        
+        $playerId = $requestedMatch->playerId;
+
+        //Make sure the user playing match is just continuing
+        if($userInfo->id == $playerId){
+
+            //Own user is accessing
+            $whitePlayerId;
+            $whitePlayerName;
+            $whitePlayerImage;
+            $blackPlayerName;
+            $blackPlayerId;
+            $blackPlayerImage;
+
+            $playerName = User::where('id', '=', $requestedMatch->playerId)->first();
+
+            if($requestedMatch->stockfishColor == 'w'){
+                $whitePlayerName = "Stockfish";
+                $whitePlayerId = "Stockfish";
+                $whitePlayerImage = "Stockfish.png";
+
+                $blackPlayerName = $playerName->name;
+                $blackPlayerId = $playerName->id;
+                $blackPlayerImage = $playerName->image;
+            }
+            else{
+                $whitePlayerName = $playerName->name;
+                $whitePlayerId = $playerName->id;
+                $whitePlayerImage = $playerName->image;
+
+                $blackPlayerName = "Stockfish";
+                $blackPlayerId = "Stockfish";
+                $blackPlayerImage = "Stockfish.png";
+            }
+
+            return MatchController::initialGameStarting($userInfo, $whitePlayerId, $whitePlayerName, $whitePlayerImage, $blackPlayerId, $blackPlayerName, $blackPlayerImage, $requestedMatch->level, $requestedMatch->id);
+
+        }
+        else{
+            //Some other user is accessing
+            return redirect()->route('playView');
+        }
+    }
+
+    public function insertPuzzleDetails(Request $request){
+
+        //Will receive position and checkmate number
+        $postData = $request->all();
+
+        //just search if the puzzle exist of similar fenPos
+        //else insert
+
+        $fenPos = $postData['fenPos'];
+        $numberOfMove = $postData['numberOfMoves'];
+
+        $searchFenPos = Puzzle::where('fenPosition', '=', $fenPos)->first();
+
+        //Find if fenPos Exist or not
+        if($searchFenPos == null){
+            $newPuzzle = Puzzle::create([
+                'fenPosition' => $fenPos,
+                'category' => "checkmate",
+                'numberOfMoves'=> $numberOfMove,
+            ]);
+        }
+    }
+
     public function analysisMatchDetails($matchType, $matchNumber){
 
         //Receives all the matches from database
@@ -87,64 +378,6 @@ class MatchController extends Controller
         return view('responsive.analysismatch', compact('data'), compact('userInformation'));
         
     }
-
-    public function redirectEnginePlayGround($matchNumber){
-
-        $userInfo = auth()->user();
-
-        //match and moves details
-        $requestedMatch = stockfish_matche::where('id', '=', $matchNumber)->first();
-
-        //if requested match does not exist
-        if($requestedMatch == null){
-            return redirect()->route('playView');
-        }
-
-        $numberOfMoves = StockfishMove::where('matchNumber', '=', $matchNumber)->get();
-        
-        $playerId = $requestedMatch->playerId;
-
-        //Make sure the user playing match is just continuing
-        if($userInfo->id == $playerId){
-
-            //Own user is accessing
-            $whitePlayerId;
-            $whitePlayerName;
-            $whitePlayerImage;
-            $blackPlayerName;
-            $blackPlayerId;
-            $blackPlayerImage;
-
-            $playerName = User::where('id', '=', $requestedMatch->playerId)->first();
-
-            if($requestedMatch->stockfishColor == 'w'){
-                $whitePlayerName = "Stockfish";
-                $whitePlayerId = "Stockfish";
-                $whitePlayerImage = "Stockfish";
-
-                $blackPlayerName = $playerName->name;
-                $blackPlayerId = $playerName->id;
-                $blackPlayerImage = $playerName->image;
-            }
-            else{
-                $whitePlayerName = $playerName->name;
-                $whitePlayerId = $playerName->id;
-                $whitePlayerImage = $playerName->image;
-
-                $blackPlayerName = "Stockfish";
-                $blackPlayerId = "Stockfish";
-                $blackPlayerImage = "Stockfish";
-            }
-
-            return MatchController::initialGameStarting($userInfo, $whitePlayerId, $whitePlayerName, $whitePlayerImage, $blackPlayerId, $blackPlayerName, $blackPlayerImage, $requestedMatch->level, $requestedMatch->id);
-
-        }
-        else{
-            //Some other user is accessing
-            return redirect()->route('playView');
-        }
-    }
-
     
     public function getAllFenPositionDetails($matchType, $matchNumber){
         $startingfenPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -417,68 +650,6 @@ class MatchController extends Controller
         $postData = $request->all();
 
         event(new PlayerMessage($postData['channelNumber'], $postData['id'], $postData['msg']));
-    }
-
-    //Start game from beginning
-    public function initialGameStarting($userDetails, $playerWhiteId, $playerWhiteName, $playerWhiteImage, $playerBlackId, $playerBlackName, $playerBlackImage, $matchType, $matchNumber){
-
-        //check if match is over or not
-        //fetch data form stockfish_moves where id = $matchnumber
-        $finalMoveInDB = StockfishMove::where('matchNumber', $matchNumber)
-                        ->orderBy('id', 'desc')
-                        ->value('move');
-
-        //Already move has been played
-        if($finalMoveInDB != null){
-            $moveArray = explode(' ', $finalMoveInDB);
-
-            //If match is already draw or checkmate
-            if(count($moveArray) == 4 || count($moveArray) == 5){
-                return redirect()->route('playView');
-            }
-        }
-
-        //If match has already ended player will not reach here
-
-        $allMovesInDB = StockfishMove::where('matchNumber', $matchNumber)
-        ->orderBy('id', 'asc')
-        ->pluck('move')
-        ->toArray();
-
-        $allFinalFenPosInDB = StockfishMove::where('matchNumber', $matchNumber)
-        ->orderBy('id', 'asc')
-        ->pluck('finalFenPosition')
-        ->toArray();
-        
-        $startingfenPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
-        $data = array();
-        $data = [
-            "playerInfomation" => [
-                "yourId" => $userDetails->id,
-                "yourName" => $userDetails->name,
-                "playerWhiteId" => $playerWhiteId,
-                "playerWhiteName" => $playerWhiteName,
-                "playerBlackId" => $playerBlackId,
-                "playerBlackName" => $playerBlackName,
-                "whitePlayerImage" => $playerWhiteImage,
-                "blackPlayerImage" => $playerBlackImage
-
-            ],
-            "boardDetails" => [
-                "startingFenPosition" => $startingfenPos,
-                "allfinalFenPosition" => $allFinalFenPosInDB,
-                "allMove" => $allMovesInDB,
-                "castelDetails" => MatchController::returnInitialCastelDetails()
-            ],
-            "gameDetails" => [
-                "level" => $matchType,
-                "channelNumber" => $matchNumber,
-                "gameType" => "stockfish"
-            ]
-        ];
-
-        return view('responsive.engineplayground', compact('data'));
     }
 
     public function recordMovesWithEngine(Request $request) {

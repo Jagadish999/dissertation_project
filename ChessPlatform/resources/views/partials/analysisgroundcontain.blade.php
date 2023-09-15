@@ -7,7 +7,7 @@
     <div class = "moveDetail-area">
         <div class = "player1Details">
 
-            <img src="/Images/Profile/{{$userInformation['blackPlayerImage']}}.png" alt="stockfish or player image" class = "imageTop">
+            <img src="/Images/Profile/{{$userInformation['blackPlayerImage']}}" alt="stockfish or player image" class = "imageTop">
             <h2 class = "topName">{{$userInformation['blackPlayerName']}}</h2>
             
         </div>
@@ -21,7 +21,7 @@
 
         <div class = "player2Details">
 
-            <img src="/Images/Profile/{{$userInformation['whitePlayerImage']}}.png" alt="stockfish or player image" class = "imageButtom">
+            <img src="/Images/Profile/{{$userInformation['whitePlayerImage']}}" alt="stockfish or player image" class = "imageButtom">
             <h2 class = "buttomName">{{$userInformation['whitePlayerName']}}</h2>
 
         </div>

@@ -2,7 +2,7 @@
 
     <div class = "online-Matches">
 
-        <h1>Recent Five Online Matches</h1>
+        <h1>Recent Online Matches</h1>
 
         @forelse($allOnlineMatchdata as $eachMatch)
         <div class = "match-details">
@@ -13,11 +13,11 @@
 
             <div class = "playerDetails">
                 <div class = "playerWhite">
-                    <img src="/Images/Profile/{{$eachMatch['whitePlayerImage']}}.png" alt="">
+                    <img src="/Images/Profile/{{$eachMatch['whitePlayerImage']}}" alt="">
                     <h2>{{ $eachMatch['whitePlayerName'] }}</h2>
                 </div>
                 <div class = "playerBlack">
-                    <img src="/Images/Profile/{{$eachMatch['blackPlayerImage']}}.png" alt="">
+                    <img src="/Images/Profile/{{$eachMatch['blackPlayerImage']}}" alt="">
                     <h2>{{ $eachMatch['blackPlayerName'] }}</h2>
                 </div>
             </div>
@@ -41,7 +41,7 @@
 
 
 
-        <h1>Recent Five Engine Matches</h1>
+        <h1>Recent Engine Matches</h1>
 
         @forelse($allEngineMatches as $eachMatch)
         <div class = "match-details">
@@ -52,7 +52,7 @@
 
             <div class = "playerDetails">
                 <div class = "playerWhite">
-                    <img src="/Images/Profile/{{$eachMatch['playerImage']}}.png" alt="">
+                    <img src="/Images/Profile/{{$eachMatch['playerImage']}}" alt="">
                     <h2>{{ $eachMatch['playerName'] }}</h2>
                 </div>
                 <div class = "playerBlack">

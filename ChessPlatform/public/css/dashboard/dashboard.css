@@ -1,0 +1,147 @@
+.dashboard-main-container{
+    position: fixed;
+    margin-left: 20%;
+
+    padding: 20px 20px 0 10px;
+
+    height: 100%;
+    width: 80%;
+
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.dashboard-heading{
+    background-color: #333;
+    color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    width: 100%;
+    text-align: center;
+}
+
+.card-wrapper{
+    margin-top: 50px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    width: 100%;
+}
+
+
+.profile-card {
+    width: 38%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 25px;
+    padding: 60px;
+    border: 1px solid #ffffff40;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(to left, #33ccff 0%, #ff99cc 100%);
+}
+
+.player-ratings {
+    width: 55%;
+    padding: 0 0 50px;
+    text-align: center;
+    border-radius: 25px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7);
+    background: linear-gradient(to right, #1abc9c, #3498db);
+}
+
+.all-rating {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.image-pro {
+    position: relative;
+    height: 150px;
+    width: 150px;
+}
+
+.image-pro .profile-pic {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+}
+
+.data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.data h2 {
+    font-size: 33px;
+    font-weight: 600;
+}
+
+span {
+    font-size: 18px;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    margin-top: 30px;
+}
+
+.row .info {
+    text-align: center;
+    padding: 0 20px;
+}
+
+.player-ratings h1 {
+    margin: 40px 0;
+    font-size: 35px;
+}
+
+.blitz-rating,
+.bullet-rating,
+.classic-rating {
+    background: linear-gradient(to left, #4ae272 0%, #ffce99 100%);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+    align-items: center;
+    border-radius: 6px;
+    color: #000000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 0 8px rgba(0, 0, 0, 0.2); 
+}
+
+.blitz-rating img,
+.bullet-rating img,
+.classic-rating img {
+    
+    height: 80px;
+    width: 80px;
+    margin-bottom: 10px;
+}
+
+.blitz-rating span,
+.bullet-rating span,
+.classic-rating span {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.blitz-rating p,
+.bullet-rating p,
+.classic-rating p {
+    font-size: 18px;
+    color: #040404;
+    margin-top: 5px;
+}

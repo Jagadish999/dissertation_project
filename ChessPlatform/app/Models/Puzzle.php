@@ -5,11 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Rating extends Model
+class Puzzle extends Model
 {
     use HasFactory;
-
     public $timestamps = false;
 
-    protected $fillable = ['blitz', 'bullet', 'classic', 'userId'];
+    protected $fillable = [
+        'fenPosition',
+        'category',
+        'numberOfMoves'
+    ];
 }

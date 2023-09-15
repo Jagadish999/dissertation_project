@@ -1,0 +1,98 @@
+.main-leaderboard-view{
+    position: fixed;
+    margin-top: 2%;
+    margin-left: 20%;
+
+    padding: 0 0 3% 0;
+
+    height: 100%;
+    width: 80%;
+
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    overflow-x: hidden;  
+}
+
+.category {
+    width: 90%;
+    margin: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.leaderboard-title {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.leaderboard-table th {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    text-align: left;
+}
+
+.leaderboard-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.leaderboard-table td {
+    padding: 10px;
+}
+
+.profile-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+}
+
+.heading-and-btn{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    padding: 15px 0;
+}
+
+.heading-and-btn h2{
+    width: 70%;
+}
+
+.heading-and-btn a{
+    width: 25%;
+}
+
+
+
+.heading-and-btn a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #3498db; /* Button background color */
+    color: #fff; /* Button text color */
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    text-decoration: none;
+}
+
+.heading-and-btn a:hover {
+    background-color: #0056b3; /* Hover background color */
+}
+
+.heading-and-btn a i {
+    margin-right: 10px; /* Spacing between icon and text */
+}

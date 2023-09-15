@@ -41,7 +41,7 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'image' => 'dummy'
+            'image' => 'dummy.png'
         ]);
 
         if($user){
@@ -59,12 +59,5 @@ class RegisteredUserController extends Controller
         }
 
         return redirect('login');
-
-        event(new Registered($user));
-
-        Auth::login($user);
-
-
-        return redirect(RouteServiceProvider::HOME);
     }
 }

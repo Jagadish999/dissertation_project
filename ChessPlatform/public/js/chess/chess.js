@@ -1,7 +1,11 @@
 function main(){
-    console.log(serverData);
     //Identify the type of game
     if(serverData.gameDetails.gameType == "stockfish"){
+
+        if (!hintButtonInitialized) {
+            initializeHintButtonListener();
+            hintButtonInitialized = true;
+        }
 
         initialEngineMatchSetUp();
         engineGameHandler();
@@ -9,11 +13,263 @@ function main(){
     else if(serverData.gameDetails.gameType == "blitz" || serverData.gameDetails.gameType == "bullet" || serverData.gameDetails.gameType == "classic"){
 
         initialBtnSetup = null;
-    
         initialBtnSetup = initialOnlineMatchSetup();
         
         multiplayerGameHandler();
     }
+    else if(serverData.gameDetails.gameType == "puzzle"){
+        const totalMoves = serverData.gameDetails.mateInMove * 2 - 1;
+        const remainingMoves = totalMoves - serverData.boardDetails.allMove.length;
+
+        if (!hintButtonInitialized) {
+            initializeHintButtonListener();
+            hintButtonInitialized = true;
+        }
+
+        if(remainingMoves >= 0){
+            initialEngineMatchSetUp();
+            engineGameHandler();
+        }
+        else{
+            checkPuzzleStatusShowMessage();
+        }
+    }
+}
+
+function checkPuzzleStatusShowMessage(){
+
+    const puzzleFailed = new Audio('/Sounds/Draw.mp3');
+    puzzleFailed.play();
+
+    const currentFenPosition = serverData.boardDetails.allfinalFenPosition.length == 0 ? serverData.boardDetails.startingFenPosition : serverData.boardDetails.allfinalFenPosition[serverData.boardDetails.allfinalFenPosition.length - 1];
+    const playerColor = serverData.playerInfomation.playerBlackId == serverData.playerInfomation.yourId ? 'b' : 'w';
+
+    const mainEventHandlerObj = new MainChessController(currentFenPosition, serverData.boardDetails.castelDetails);
+    const chessElementHandlerObj = new ChessElementHandler(currentFenPosition, playerColor);
+
+    const gameStatus = mainEventHandlerObj.getCurrentStatus();
+
+    const boardContainer = document.getElementsByClassName('chessBrd-area')[0];
+    const movesHolder = document.getElementsByClassName('moves-details-wrapper')[0];
+
+    chessElementHandlerObj.getBoardWithPieces();
+
+        //If player have played at least one moves
+        if(serverData.boardDetails.allMove.length > 0){
+
+            chessElementHandlerObj.setBoardWithMove(serverData.boardDetails.allMove[serverData.boardDetails.allMove.length - 1]);
+    
+            //Checkmate
+            if(gameStatus[0] || gameStatus[1]){
+    
+                let kingSquare;
+                pieceArray = mainEventHandlerObj.getAllLegalMovesOfBothPlayers()[0];
+                if(currentFenPosition.split(" ")[1] == 'w'){
+                    kingSquare = pieceArray.find(piece => piece.pieceName === 'K')?.currentSquare;
+                }
+                else{
+                    kingSquare = pieceArray.find(piece => piece.pieceName === 'k')?.currentSquare;
+                }
+                
+                chessElementHandlerObj.setBoardWithCheckedSquarePieces(kingSquare);
+            }
+        }
+    
+        const movesInDivs = chessElementHandlerObj.createMoveElements(serverData.boardDetails.allMove);
+    
+        chessElementHandlerObj.clearParentElement(movesHolder);
+        chessElementHandlerObj. placeChildElementInParentElement(movesInDivs, movesHolder);
+    
+        let htmlBoardElement = chessElementHandlerObj.getBoardWithPieces();
+    
+        //Manage Hint for player
+        chessElementHandlerObj.clearParentElement(boardContainer);
+        chessElementHandlerObj. placeChildElementInParentElement(htmlBoardElement, boardContainer);
+}
+
+
+//For hint access
+let globalFenPos;
+async function engineGameHandler(){
+
+    //If game have just started receive first fen Position
+    const currentFenPosition = serverData.boardDetails.allfinalFenPosition.length == 0 ? serverData.boardDetails.startingFenPosition : serverData.boardDetails.allfinalFenPosition[serverData.boardDetails.allfinalFenPosition.length - 1];
+
+    //For access of hint
+    globalFenPos = currentFenPosition;
+
+    const playerColor = serverData.playerInfomation.playerBlackId == serverData.playerInfomation.yourId ? 'b' : 'w';
+
+    //Required Objects
+    const mainEventHandlerObj = new MainChessController(currentFenPosition, serverData.boardDetails.castelDetails);
+    const chessElementHandlerObj = new ChessElementHandler(currentFenPosition, playerColor);
+    const getOrPostRequestObj = new GetOrPostRequest();
+
+    //Check If game is playable or not
+    const gamePlayable = mainEventHandlerObj.evaluateFenPosition();
+    const gameStatus = mainEventHandlerObj.getCurrentStatus();
+
+    const boardContainer = document.getElementsByClassName('chessBrd-area')[0];
+    const movesHolder = document.getElementsByClassName('moves-details-wrapper')[0];
+    
+    chessElementHandlerObj.getBoardWithPieces();
+
+    //If player have played at least one moves
+    if(serverData.boardDetails.allMove.length > 0){
+
+        chessElementHandlerObj.setBoardWithMove(serverData.boardDetails.allMove[serverData.boardDetails.allMove.length - 1]);
+
+        //Checkmate
+        if(gameStatus[0] || gameStatus[1]){
+
+            let kingSquare;
+            pieceArray = mainEventHandlerObj.getAllLegalMovesOfBothPlayers()[0];
+            if(currentFenPosition.split(" ")[1] == 'w'){
+                kingSquare = pieceArray.find(piece => piece.pieceName === 'K')?.currentSquare;
+            }
+            else{
+                kingSquare = pieceArray.find(piece => piece.pieceName === 'k')?.currentSquare;
+            }
+            
+            chessElementHandlerObj.setBoardWithCheckedSquarePieces(kingSquare);
+        }
+        playSoundBasedOnMove(serverData.boardDetails.allMove[serverData.boardDetails.allMove.length - 1], gameStatus[0]);
+    }
+
+    const movesInDivs = chessElementHandlerObj.createMoveElements(serverData.boardDetails.allMove);
+
+    chessElementHandlerObj.clearParentElement(movesHolder);
+    chessElementHandlerObj. placeChildElementInParentElement(movesInDivs, movesHolder);
+
+    let htmlBoardElement = chessElementHandlerObj.getBoardWithPieces();
+
+    //Manage Hint for player
+    
+    chessElementHandlerObj.clearParentElement(boardContainer);
+    chessElementHandlerObj. placeChildElementInParentElement(htmlBoardElement, boardContainer);
+
+    if(gamePlayable){
+
+        //Find if it is player to move
+        if(currentFenPosition.split(" ")[1] == playerColor){
+
+            //Now do all the action related to board on browser Get valid move in return
+            const currentPlayersAllLegalMoves = mainEventHandlerObj.getAllLegalMovesOfBothPlayers()[0];
+
+            let playersMovedPieceAndSquare = findPlayersMoveAndPiece(currentPlayersAllLegalMoves, htmlBoardElement, boardContainer, chessElementHandlerObj, null);
+
+            //Only Continue if player makes a valid Move
+            playersMovedPieceAndSquare.then(function(val){
+
+                //val variable will be having three items in array [movedPieceDetails, movedNumber, piecePromotion]
+                //Set updated Fen position
+                mainEventHandlerObj.setUpdatedFenPositionAndCastelPerms(val);
+                mainEventHandlerObj.setUpdatedFenPositionStatus();
+                mainEventHandlerObj.setCurrentMove(val);
+
+                const newFenPosition = mainEventHandlerObj.getUpdatedFenPosition();
+                const newCastelDetails = mainEventHandlerObj.getUpdatedCastelPerms();
+                const currentMove = mainEventHandlerObj.getCurrentMove();
+
+                //continue game with new position with stockfish move
+                serverData.boardDetails.allMove.push(currentMove);
+                serverData.boardDetails.allfinalFenPosition.push(newFenPosition);
+                serverData.boardDetails.castelDetails = newCastelDetails;
+
+                const allFenPositions = serverData.boardDetails.allfinalFenPosition;
+                const allMoves = serverData.boardDetails.allMove;
+
+                const channelNumber = serverData.gameDetails.channelNumber;
+                const gameType = serverData.gameDetails.gameType;
+                const startingFenPosition = allFenPositions.length == 1 ? currentFenPosition : allFenPositions[allFenPositions.length - 2];
+                const finalFenPosition = allFenPositions[allFenPositions.length - 1];
+                const move = allMoves[allMoves.length - 1];
+
+                //Record In database these details
+                const requiredDataForDB = {
+                    "matchNumber" : channelNumber,
+                    "startingFenPosition" : startingFenPosition,
+                    "finalFenPosition" : finalFenPosition,
+                    "move" : move,
+                }
+
+                if(serverData.gameDetails.gameType == "stockfish"){
+                    callPostMethod(requiredDataForDB, "/engineMatchMoves", "POST");
+                }
+
+                if(serverData.gameDetails.gameType == "puzzle" && move.split(" ").length == 5){
+
+                    const data = {
+                        puzzleNumber : serverData.gameDetails.channelNumber
+                    }
+                    
+                    callPostMethod(data, "/updatePuzzleSoved", "POST");
+                }
+
+                main();
+            });
+        }
+        else{
+
+            chessElementHandlerObj.clearParentElement(boardContainer);
+            chessElementHandlerObj. placeChildElementInParentElement(htmlBoardElement, boardContainer);
+
+            const nodeServerUrl = 'http://localhost:3000';
+
+            try{
+                const bestMove = await getOrPostRequestObj.getBestMove(currentFenPosition, parseInt(serverData.gameDetails.level) * 3, nodeServerUrl);
+
+                const currentSquareOfPiece = mainEventHandlerObj.findPieceCurrnetSquare(bestMove);
+                const movedSquareOfPiece = mainEventHandlerObj.findPieceMovedSquare(bestMove);
+                const pieceDetails = mainEventHandlerObj.findSelectedPieceDetails(currentSquareOfPiece);
+                const promotionStatus = mainEventHandlerObj.findPawnPromotionIfExist(bestMove);
+
+                mainEventHandlerObj.setUpdatedFenPositionAndCastelPerms([pieceDetails, movedSquareOfPiece, promotionStatus]);
+                mainEventHandlerObj.setUpdatedFenPositionStatus();
+                mainEventHandlerObj.setCurrentMove([pieceDetails, movedSquareOfPiece, promotionStatus]);
+
+                const newFenPosition = mainEventHandlerObj.getUpdatedFenPosition();
+                const newCastelDetails = mainEventHandlerObj.getUpdatedCastelPerms();
+                const currentMove = mainEventHandlerObj.getCurrentMove();
+
+                serverData.boardDetails.allMove.push(currentMove);
+                serverData.boardDetails.allfinalFenPosition.push(newFenPosition);
+                serverData.boardDetails.castelDetails = newCastelDetails;
+
+                //Record In database this details
+                console.log("Stockfish Played: " + currentMove);
+
+                const allFenPositions = serverData.boardDetails.allfinalFenPosition;
+                const allMoves = serverData.boardDetails.allMove;
+
+                const channelNumber = serverData.gameDetails.channelNumber;
+                const gameType = serverData.gameDetails.gameType;
+                const startingFenPosition = allFenPositions.length == 1 ? currentFenPosition : allFenPositions[allFenPositions.length - 2];
+                const finalFenPosition = allFenPositions[allFenPositions.length - 1];
+                const move = allMoves[allMoves.length - 1];
+
+                //Record In database these details
+                const requiredDataForDB = {
+                    "matchNumber" : channelNumber,
+                    "startingFenPosition" : startingFenPosition,
+                    "finalFenPosition" : finalFenPosition,
+                    "move" : move
+                }
+
+                if(serverData.gameDetails.gameType == "stockfish"){
+                    callPostMethod(requiredDataForDB, "/engineMatchMoves", "POST");
+                }
+
+                setTimeout(() => {
+                    main();
+                }, 1500);
+
+            }
+            catch(error){
+                console.error('Error:', error);
+            }
+        }
+   }
 }
 
 
@@ -312,10 +568,10 @@ async function multiplayerGameHandler(){
     //Required Objects
     const mainEventHandlerObj = new MainChessController(currentFenPosition, serverData.boardDetails.castelDetails);
     const chessElementHandlerObj = new ChessElementHandler(currentFenPosition, playerColor);
-    const getOrPostRequestObj = new GetOrPostRequest();
 
     //Check If game is playable or not
     const gamePlayable = mainEventHandlerObj.evaluateFenPosition();
+
     const gameStatus = mainEventHandlerObj.getCurrentStatus();
 
     const boardContainer = document.getElementsByClassName('chessBrd-area')[0];
@@ -422,37 +678,33 @@ async function multiplayerGameHandler(){
                         "remainingTimeBlack" : blackRemainingTime
                     };
 
-                    console.log("Length Of Move is: " + currentMove.split(" ").length);
-
                     callPostMethod(dataToRecord, "/recordPlayerMove", "POST");
                     callPostMethod(serverData, "/playersMadeMove", "POST");
-                    
-
                 });
             }
        }
        //End Game Here
        else{
 
-        clearInterval(yourTimeInterval);
-        clearInterval(opponentTimeInterval);
+            clearInterval(yourTimeInterval);
+            clearInterval(opponentTimeInterval);
 
-        const lastMoveMade = serverData.boardDetails.allMove[serverData.boardDetails.allMove.length - 1];
-        const winningPlayerColor = currentFenPosition.split(" ")[1] == 'w' ? 'b' : 'w';
+            const lastMoveMade = serverData.boardDetails.allMove[serverData.boardDetails.allMove.length - 1];
+            const winningPlayerColor = currentFenPosition.split(" ")[1] == 'w' ? 'b' : 'w';
 
-        if(lastMoveMade.split(" ").length == 4){
+            if(lastMoveMade.split(" ").length == 4){
 
-            setTimeout(() => {
-                gameOver(null, "Draw");
-            }, 1500);
+                setTimeout(() => {
+                    gameOver(null, "Draw");
+                }, 1500);
 
-        }
-        //Game Ended in checkMate
-        else if(lastMoveMade.split(" ").length == 5){
-            setTimeout(() => {
-                gameOver(winningPlayerColor, "CheckMate");
-            }, 1500);
-        }
+            }
+            //Game Ended in checkMate
+            else if(lastMoveMade.split(" ").length == 5){
+                setTimeout(() => {
+                    gameOver(winningPlayerColor, "CheckMate");
+                }, 1500);
+            }
 
        }
 }
@@ -473,205 +725,6 @@ async function callPostMethod(requiredData, redirectURL, method){
     catch (error) {
         console.error('Error:', error);
     }
-}
-
-//For hint access
-let globalFenPos;
-
-async function engineGameHandler(){
-
-    const hintButton = document.getElementsByClassName('btn-hint')[0];
-
-    //If game have just started receive first fen Position
-    const currentFenPosition = serverData.boardDetails.allfinalFenPosition.length == 0 ? serverData.boardDetails.startingFenPosition : serverData.boardDetails.allfinalFenPosition[serverData.boardDetails.allfinalFenPosition.length - 1];
-
-    //For access of hint
-    globalFenPos = currentFenPosition;
-
-    const playerColor = serverData.playerInfomation.playerBlackId == serverData.playerInfomation.yourId ? 'b' : 'w';
-
-    //Required Objects
-    const mainEventHandlerObj = new MainChessController(currentFenPosition, serverData.boardDetails.castelDetails);
-    const chessElementHandlerObj = new ChessElementHandler(currentFenPosition, playerColor);
-    const getOrPostRequestObj = new GetOrPostRequest();
-
-    //Check If game is playable or not
-    const gamePlayable = mainEventHandlerObj.evaluateFenPosition();
-    const gameStatus = mainEventHandlerObj.getCurrentStatus();
-
-    const boardContainer = document.getElementsByClassName('chessBrd-area')[0];
-    const movesHolder = document.getElementsByClassName('moves-details-wrapper')[0];
-    
-    chessElementHandlerObj.getBoardWithPieces();
-
-    //If player have played at least one moves
-    if(serverData.boardDetails.allMove.length > 0){
-
-        chessElementHandlerObj.setBoardWithMove(serverData.boardDetails.allMove[serverData.boardDetails.allMove.length - 1]);
-
-        //Checkmate
-        if(gameStatus[0] || gameStatus[1]){
-
-            let kingSquare;
-            pieceArray = mainEventHandlerObj.getAllLegalMovesOfBothPlayers()[0];
-            if(currentFenPosition.split(" ")[1] == 'w'){
-                kingSquare = pieceArray.find(piece => piece.pieceName === 'K')?.currentSquare;
-            }
-            else{
-                kingSquare = pieceArray.find(piece => piece.pieceName === 'k')?.currentSquare;
-            }
-            
-            chessElementHandlerObj.setBoardWithCheckedSquarePieces(kingSquare);
-        }
-        playSoundBasedOnMove(serverData.boardDetails.allMove[serverData.boardDetails.allMove.length - 1], gameStatus[0]);
-    }
-
-    const movesInDivs = chessElementHandlerObj.createMoveElements(serverData.boardDetails.allMove);
-
-    chessElementHandlerObj.clearParentElement(movesHolder);
-    chessElementHandlerObj. placeChildElementInParentElement(movesInDivs, movesHolder);
-
-    let htmlBoardElement = chessElementHandlerObj.getBoardWithPieces();
-
-    //Manage Hint for player
-    
-    chessElementHandlerObj.clearParentElement(boardContainer);
-    chessElementHandlerObj. placeChildElementInParentElement(htmlBoardElement, boardContainer);
-    
-    //only play hint whenever your turn
-    if(globalFenPos.split(" ")[4] == 0 && globalFenPos.split(" ")[5] == 1){
-        hintButton.addEventListener('click', async () => {
-            if(globalFenPos.split(" ")[1] == playerColor){
-                try{
-                    const nodeServerUrl = 'http://localhost:3000';
-                    const bestMove = await getOrPostRequestObj.getBestMove(globalFenPos, parseInt(serverData.gameDetails.level) * 3 + 5, nodeServerUrl);
-                    const currentSquareOfPiece = mainEventHandlerObj.findPieceCurrnetSquare(bestMove);
-                    const movedSquareOfPiece = mainEventHandlerObj.findPieceMovedSquare(bestMove);
-        
-                    document.getElementsByClassName(currentSquareOfPiece)[0].style.backgroundColor = '#FFD700';
-                    document.getElementsByClassName(currentSquareOfPiece)[0].style.border = '2px solid black';
-        
-                    document.getElementsByClassName(movedSquareOfPiece)[0].style.backgroundColor = '#FFD700';
-                    document.getElementsByClassName(movedSquareOfPiece)[0].style.border = '2px solid black';
-                }
-                catch(error){
-                    console.error('Error:', error);
-                }
-            }
-        });
-    }
-
-    if(gamePlayable){
-
-        //Find if it is player to move
-        if(currentFenPosition.split(" ")[1] == playerColor){
-
-            //Now do all the action related to board on browser Get valid move in return
-            const currentPlayersAllLegalMoves = mainEventHandlerObj.getAllLegalMovesOfBothPlayers()[0];
-
-            let playersMovedPieceAndSquare = findPlayersMoveAndPiece(currentPlayersAllLegalMoves, htmlBoardElement, boardContainer, chessElementHandlerObj, null);
-
-            //Only Continue if player makes a valid Move
-            playersMovedPieceAndSquare.then(function(val){
-
-                //val variable will be having three items in array [movedPieceDetails, movedNumber, piecePromotion]
-                //Set updated Fen position
-                mainEventHandlerObj.setUpdatedFenPositionAndCastelPerms(val);
-                mainEventHandlerObj.setUpdatedFenPositionStatus();
-                mainEventHandlerObj.setCurrentMove(val);
-
-                const newFenPosition = mainEventHandlerObj.getUpdatedFenPosition();
-                const newCastelDetails = mainEventHandlerObj.getUpdatedCastelPerms();
-                const currentMove = mainEventHandlerObj.getCurrentMove();
-
-                //continue game with new position with stockfish move
-                serverData.boardDetails.allMove.push(currentMove);
-                serverData.boardDetails.allfinalFenPosition.push(newFenPosition);
-                serverData.boardDetails.castelDetails = newCastelDetails;
-
-                const allFenPositions = serverData.boardDetails.allfinalFenPosition;
-                const allMoves = serverData.boardDetails.allMove;
-
-                const channelNumber = serverData.gameDetails.channelNumber;
-                const gameType = serverData.gameDetails.gameType;
-                const startingFenPosition = allFenPositions.length == 1 ? currentFenPosition : allFenPositions[allFenPositions.length - 2];
-                const finalFenPosition = allFenPositions[allFenPositions.length - 1];
-                const move = allMoves[allMoves.length - 1];
-
-                //Record In database these details
-                const requiredDataForDB = {
-                    "matchNumber" : channelNumber,
-                    "startingFenPosition" : startingFenPosition,
-                    "finalFenPosition" : finalFenPosition,
-                    "move" : move,
-                }
-
-                console.log('Data player: ',  requiredDataForDB);
-                callPostMethod(requiredDataForDB, "/engineMatchMoves", "POST");
-
-                main();
-            });
-        }
-        else{
-
-            chessElementHandlerObj.clearParentElement(boardContainer);
-            chessElementHandlerObj. placeChildElementInParentElement(htmlBoardElement, boardContainer);
-
-            const nodeServerUrl = 'http://localhost:3000';
-
-            try{
-                const bestMove = await getOrPostRequestObj.getBestMove(currentFenPosition, parseInt(serverData.gameDetails.level) * 3, nodeServerUrl);
-
-                const currentSquareOfPiece = mainEventHandlerObj.findPieceCurrnetSquare(bestMove);
-                const movedSquareOfPiece = mainEventHandlerObj.findPieceMovedSquare(bestMove);
-                const pieceDetails = mainEventHandlerObj.findSelectedPieceDetails(currentSquareOfPiece);
-                const promotionStatus = mainEventHandlerObj.findPawnPromotionIfExist(bestMove);
-
-                mainEventHandlerObj.setUpdatedFenPositionAndCastelPerms([pieceDetails, movedSquareOfPiece, promotionStatus]);
-                mainEventHandlerObj.setUpdatedFenPositionStatus();
-                mainEventHandlerObj.setCurrentMove([pieceDetails, movedSquareOfPiece, promotionStatus]);
-
-                const newFenPosition = mainEventHandlerObj.getUpdatedFenPosition();
-                const newCastelDetails = mainEventHandlerObj.getUpdatedCastelPerms();
-                const currentMove = mainEventHandlerObj.getCurrentMove();
-
-                serverData.boardDetails.allMove.push(currentMove);
-                serverData.boardDetails.allfinalFenPosition.push(newFenPosition);
-                serverData.boardDetails.castelDetails = newCastelDetails;
-
-                //Record In database this details
-                console.log("Stockfish Played: " + currentMove);
-
-                const allFenPositions = serverData.boardDetails.allfinalFenPosition;
-                const allMoves = serverData.boardDetails.allMove;
-
-                const channelNumber = serverData.gameDetails.channelNumber;
-                const gameType = serverData.gameDetails.gameType;
-                const startingFenPosition = allFenPositions.length == 1 ? currentFenPosition : allFenPositions[allFenPositions.length - 2];
-                const finalFenPosition = allFenPositions[allFenPositions.length - 1];
-                const move = allMoves[allMoves.length - 1];
-
-                //Record In database these details
-                const requiredDataForDB = {
-                    "matchNumber" : channelNumber,
-                    "startingFenPosition" : startingFenPosition,
-                    "finalFenPosition" : finalFenPosition,
-                    "move" : move
-                }
-
-                callPostMethod(requiredDataForDB, "/engineMatchMoves", "POST");
-                console.log('Data Stockfish : ',  requiredDataForDB);
-
-                setTimeout(() => {
-                    main();
-                }, 1500);
-
-            }
-            catch(error){
-                console.error('Error:', error);
-            }
-        }
-   }
 }
 
 //If user chooses valid moves return [pieceDetails, movedSqNum, promotedPiece]
@@ -942,12 +995,54 @@ function initialEngineMatchSetUp(){
         topName.textContent = serverData.playerInfomation.playerBlackName;
         buttomName.textContent = serverData.playerInfomation.playerWhiteName;
     }
-    imageTop.setAttribute('src', '/Images/Profile/' + topImageName + '.png');
-    imageButtom.setAttribute('src', '/Images/Profile/' + buttomImageName + '.png');
+    imageTop.setAttribute('src', '/Images/Profile/' + topImageName);
+    imageButtom.setAttribute('src', '/Images/Profile/' + buttomImageName);
 
 
     exitBtn.addEventListener('click', () => {
-        window.location.href = '/play';
+
+        if(serverData.gameDetails.gameType == "puzzle"){
+            window.location.href = '/puzzle';
+        }
+        else{
+            window.location.href = '/play';
+        }
+        
+    });
+}
+
+let hintButtonInitialized = false;
+
+function initializeHintButtonListener() {
+    
+    const hintButton = document.getElementsByClassName('btn-hint')[0];
+    const playerColor = serverData.playerInfomation.playerBlackId == serverData.playerInfomation.yourId ? 'b' : 'w';
+    const currentFenPosition = serverData.boardDetails.allfinalFenPosition.length == 0 ? serverData.boardDetails.startingFenPosition : serverData.boardDetails.allfinalFenPosition[serverData.boardDetails.allfinalFenPosition.length - 1];
+
+    const getOrPostRequestObj = new GetOrPostRequest();
+    const mainEventHandlerObj = new MainChessController(currentFenPosition, serverData.boardDetails.castelDetails);
+    hintButton.addEventListener('click', async () => {
+        console.log("Hint Initialized");
+        if (globalFenPos.split(" ")[1] == playerColor) {
+            try {
+                const nodeServerUrl = 'http://localhost:3000';
+                let bestMove = await getOrPostRequestObj.getBestMove(globalFenPos, parseInt(serverData.gameDetails.level) * 3 + 5, nodeServerUrl);
+                bestMove = bestMove.trim();
+
+                if (bestMove != "(none)") {
+                    const currentSquareOfPiece = mainEventHandlerObj.findPieceCurrnetSquare(bestMove);
+                    const movedSquareOfPiece = mainEventHandlerObj.findPieceMovedSquare(bestMove);
+
+                    document.getElementsByClassName(currentSquareOfPiece)[0].style.backgroundColor = '#FFD700';
+                    document.getElementsByClassName(currentSquareOfPiece)[0].style.border = '2px solid black';
+
+                    document.getElementsByClassName(movedSquareOfPiece)[0].style.backgroundColor = '#FFD700';
+                    document.getElementsByClassName(movedSquareOfPiece)[0].style.border = '2px solid black';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
     });
 }
 

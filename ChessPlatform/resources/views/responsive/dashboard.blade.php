@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
     <link rel="stylesheet" href="/css/dashboard/style.css">
-
+    <link rel="stylesheet" href="/css/dashboard/dashboard.css">
     
     
     <title>Dashboard</title> 
@@ -20,8 +20,11 @@
     @include('partials.navigation')
     @include('partials.dashboardcontain')
 
-
     <script src = "/js/dashboard/script.js"></script>
+
+    <script>
+        const userInformation = @json($data);
+    </script>
 
 </body>
 </html>

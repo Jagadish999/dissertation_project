@@ -1,4 +1,4 @@
-<nav class="sidebar close">
+<nav class="sidebar">
         <header>
             <div class="image-text">
                 <span class="image">
@@ -60,36 +60,19 @@
                     </li>
 
                     <li class="nav-link">
-                        <a href="#">
+                        <a href="/editprofile">
                             <i class="fas fa-pencil-alt icon"></i>
                             <span class="text nav-text">Edit Profile</span>
                         </a>
                     </li>
 
+                    <li class="">
+                        <a href="/logout">
+                            <i class="fas fa-sign-out-alt icon"></i>
+                            <span class="text nav-text">Logout</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
-
-            <div class="bottom-content">
-                <li class="">
-                    <a href="#">
-                        <i class="fas fa-sign-out-alt icon"></i>
-                        <span class="text nav-text">Logout</span>
-                    </a>
-                </li>
-
-                <li class="mode">
-                    <div class="sun-moon">
-                        <i class='bx bx-moon icon moon'></i>
-                        <i class='bx bx-sun icon sun'></i>
-                    </div>
-                    <span class="mode-text text">Dark mode</span>
-
-                    <div class="toggle-switch">
-                        <span class="switch"></span>
-                    </div>
-                </li>
-                
-            </div>
         </div>
-
     </nav>
