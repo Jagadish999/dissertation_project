@@ -333,7 +333,7 @@ class MatchController extends Controller
             if($playerColor == 'w'){
                 $userInformation = [
                     "blackPlayerName" => "Stockfish",
-                    "blackPlayerImage" => "Stockfish",
+                    "blackPlayerImage" => "Stockfish.png",
                     "whitePlayerName" => $playerDetails->name,
                     "whitePlayerImage" => $playerDetails->image
                 ];
@@ -343,7 +343,7 @@ class MatchController extends Controller
                     "blackPlayerName" => $playerDetails->name,
                     "blackPlayerImage" => $playerDetails->image,
                     "whitePlayerName" => "Stockfish",
-                    "whitePlayerImage" => "Stockfish"
+                    "whitePlayerImage" => "Stockfish.png"
                 ];
             }
             
@@ -424,16 +424,16 @@ class MatchController extends Controller
         
         //update rating
         if($postData["gameType"] == 'blitz'){
-            $whitePlayerRating->blitz = $postData['updatedWhiteId'];
-            $blackPlayerRating->blitz = $postData['updatedBlackId'];
+            $whitePlayerRating->blitz = $postData['updatedWhiteRating'];
+            $blackPlayerRating->blitz = $postData['updatedBlackRating'];
         }
         else if($postData["gameType"] == 'bullet'){
-            $whitePlayerRating->bullet = $postData['updatedWhiteId'];
-            $blackPlayerRating->bullet = $postData['updatedBlackId'];
+            $whitePlayerRating->bullet = $postData['updatedWhiteRating'];
+            $blackPlayerRating->bullet = $postData['updatedBlackRating'];
         }
         else{
-            $whitePlayerRating->classic = $postData['updatedWhiteId'];
-            $blackPlayerRating->classic = $postData['updatedBlackId'];
+            $whitePlayerRating->classic = $postData['updatedWhiteRating'];
+            $blackPlayerRating->classic = $postData['updatedBlackRating'];
         }
         //update game data
         $whitePlayerRating->save();
@@ -530,7 +530,7 @@ class MatchController extends Controller
                     $blackRemainingTime = MatchController::findFinalTime($blackRemainingTime, $moveInsertedDate);
                 }
 
-                $data = MatchController::generateGameDataArray($loggedUser, $playerWhite, $playerBlack, $playerWhiteRating, $playerBlackRating, $whiteRemainingTime, $blackRemainingTime, $onlineChannelNumber, $allFinalFenPosInDB, $allMovesInDB);
+                $data = MatchController::generateGameDataArray($loggedUser, $playerWhite, $playerBlack, $playerWhiteRating, $playerBlackRating, $whiteRemainingTime, $blackRemainingTime, $onlineChannelNumber, $allFinalFenPosInDB, $allMovesInDB, $gameType);
     
                 return view('responsive.onlinechessground', compact('data'));
             }
@@ -559,7 +559,7 @@ class MatchController extends Controller
                 }
 
                 //Get data if match has just started
-                $data = MatchController::generateGameDataArray($loggedUser, $playerWhite, $playerBlack, $playerWhiteRating, $playerBlackRating, $whiteRemainingTime, $blackRemainingTime, $onlineChannelNumber, [], []);
+                $data = MatchController::generateGameDataArray($loggedUser, $playerWhite, $playerBlack, $playerWhiteRating, $playerBlackRating, $whiteRemainingTime, $blackRemainingTime, $onlineChannelNumber, [], [], $gameType);
     
                 return view('responsive.onlinechessground', compact('data'));
             }
@@ -583,7 +583,7 @@ class MatchController extends Controller
         return ($remaining - $secondDiff);
     }
 
-    public function generateGameDataArray($loggedUser, $playerWhite, $playerBlack, $playerWhiteRating, $playerBlackRating, $whiteRemainingTime, $blackRemainingTime, $onlineChannelNumber, $allfinalFenPositions, $allMoves) {
+    public function generateGameDataArray($loggedUser, $playerWhite, $playerBlack, $playerWhiteRating, $playerBlackRating, $whiteRemainingTime, $blackRemainingTime, $onlineChannelNumber, $allfinalFenPositions, $allMoves, $gameType) {
 
         $startingfenPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -610,7 +610,7 @@ class MatchController extends Controller
             ],
             "gameDetails" => [
                 "channelNumber" => $onlineChannelNumber,
-                "gameType" => "bullet"
+                "gameType" => $gameType
             ]
         ];
 

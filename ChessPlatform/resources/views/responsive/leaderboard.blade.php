@@ -25,7 +25,6 @@
 
     <script>
         const data = @json($data);
-        console.log(data);
     </script>
 
 </body>

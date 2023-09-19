@@ -29,7 +29,9 @@ Route::post('/upload', [ImageController::class, 'upload'])->middleware(['auth', 
 //Routes for match with engine
 
 Route::post('/engineMatchSelected', [MatchController::class, 'insertEngineMatchDetails'])->middleware(['auth', 'verified']);
+
 Route::get('/engineground/{matchNumber}', [MatchController::class, 'redirectEnginePlayGround'])->middleware(['auth', 'verified']);
+
 Route::post('/engineMatchMoves', [MatchController::class, 'recordMovesWithEngine'])->middleware(['auth', 'verified']);
 
 Route::post('/updatePuzzleSoved', [MatchController::class, 'updateCompletedPuzzle'])->middleware(['auth', 'verified']);

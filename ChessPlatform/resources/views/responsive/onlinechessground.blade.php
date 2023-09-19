@@ -42,6 +42,7 @@
     <script src = "{{asset('build/assets/app-4212186a.js')}}"></script>
     <script>
         let serverData = @json($data);
+        console.log(serverData);
 
         const yourId = serverData.playerInfomation.yourId;
         const blackId = serverData.playerInfomation.playerBlackId;

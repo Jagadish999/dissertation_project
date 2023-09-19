@@ -345,8 +345,8 @@ function gameOver(winningPlayerColor, endingDetail){
             const requiredData = {
                 "playerBlackId" : serverData.playerInfomation.playerBlackId,
                 "playerWhiteId" : serverData.playerInfomation.playerWhiteId,
-                "updatedWhiteId" : whiteRating + 4,
-                "updatedBlackId" : blackRating - 4,
+                "updatedWhiteRating" : whiteRating + 4,
+                "updatedBlackRating" : blackRating - 4,
                 "matchId" : serverData.gameDetails.channelNumber,
                 "gameType" : serverData.gameDetails.gameType
             };
@@ -354,11 +354,15 @@ function gameOver(winningPlayerColor, endingDetail){
             callPostMethod(requiredData, "/updateRating", "POST");
         }
         else if(winningPlayerColor == 'b' && serverData.playerInfomation.yourId == serverData.playerInfomation.playerBlackId){
-            const data = {
-                whiteRating : whiteRating - 4,
-                blackRating : blackRating + 4
+            const requiredData = {
+                "playerBlackId" : serverData.playerInfomation.playerBlackId,
+                "playerWhiteId" : serverData.playerInfomation.playerWhiteId,
+                "updatedWhiteRating" : whiteRating - 4,
+                "updatedBlackRating" : blackRating + 4,
+                "matchId" : serverData.gameDetails.channelNumber,
+                "gameType" : serverData.gameDetails.gameType
             };
-            callPostMethod(data, "/updateRating", "POST");
+            callPostMethod(requiredData, "/updateRating", "POST");
         }
     }
 }
@@ -872,6 +876,22 @@ function providePromotingOptions(){
         const optBishop = document.getElementsByClassName('OptBishop')[0];
         const optNight = document.getElementsByClassName('OptNight')[0];
         const optRook = document.getElementsByClassName('OptRook')[0];
+
+        const tempFenHolder = serverData.boardDetails.allfinalFenPosition.length == 0 ? serverData.boardDetails.startingFenPosition : serverData.boardDetails.allfinalFenPosition[serverData.boardDetails.allfinalFenPosition.length - 1];
+        const playerToMove = tempFenHolder.split(" ")[1];
+
+        if(playerToMove == 'b'){
+            optQueen.getElementsByTagName('img')[0].setAttribute("src", "/Images/black_pieces/q.png");
+            optBishop.getElementsByTagName('img')[0].setAttribute("src", "/Images/black_pieces/b.png");
+            optNight.getElementsByTagName('img')[0].setAttribute("src", "/Images/black_pieces/n.png");
+            optRook.getElementsByTagName('img')[0].setAttribute("src", "/Images/black_pieces/r.png");
+        }
+        else{
+            optQueen.getElementsByTagName('img')[0].setAttribute("src", "/Images/white_pieces/Q.png");
+            optBishop.getElementsByTagName('img')[0].setAttribute("src", "/Images/white_pieces/B.png");
+            optNight.getElementsByTagName('img')[0].setAttribute("src", "/Images/white_pieces/N.png");
+            optRook.getElementsByTagName('img')[0].setAttribute("src", "/Images/white_pieces/R.png");
+        }
 
         optQueen.addEventListener('click', () => {
             options.style.display = 'none';

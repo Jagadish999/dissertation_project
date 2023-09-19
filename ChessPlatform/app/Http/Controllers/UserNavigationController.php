@@ -28,11 +28,6 @@ class UserNavigationController extends Controller
                   ->orWhere('blackPlayer', $userInfo->id);
         })->count();
 
-        //Total number of blitz match played
-        $totalBlitzMatches = Matche::where(function ($query) use ($userInfo) {
-            $query->where('whitePlayer', $userInfo->id)
-                  ->orWhere('blackPlayer', $userInfo->id);
-        })->count();
     
         $totalBlitzMatches = Matche::where(function ($query) use ($userInfo) {
             $query->where(function ($subquery) use ($userInfo) {
@@ -57,7 +52,6 @@ class UserNavigationController extends Controller
             })
             ->where('gameType', 'classic');
         })->count();
-    
 
         $totalPuzzlesSolved = CompletedPuzzle::where('playerId', $userInfo->id)->count();
     
@@ -73,9 +67,9 @@ class UserNavigationController extends Controller
             "totalBlitzMatches" => $totalBlitzMatches,
             "totalBulletMatches" => $totalBulletMatches,
             "totalClassicMatches" => $totalClassicMatches,
-            "totalPuzzlesSolved" => $totalPuzzlesSolved,
+            "totalPuzzlesSolved" => $totalPuzzlesSolved
         ];
-    
+
         return view('responsive.dashboard', compact('data'));
     }
 
@@ -117,7 +111,7 @@ class UserNavigationController extends Controller
 
     public function topPlayersGameType($gameType){
         $title = ucfirst($gameType) . ' Leaderboard';
-        $topPlayerInfos = UserNavigationController::findTopPlayers($gameType, 10);
+        $topPlayerInfos = UserNavigationController::findTopPlayers($gameType, 15);
         return view('responsive.specificleaderboard', compact('topPlayerInfos'), compact('title'));
     }
 
@@ -142,8 +136,6 @@ class UserNavigationController extends Controller
     
         return $topPlayers;
     }
-    
-
 
     public function editProfileView(){
         $user = auth()->user();
@@ -246,8 +238,7 @@ class UserNavigationController extends Controller
                 'endingFenPosition' => $finalFenPos,
                 'totalNumberOfMoves' => UserNavigationController::getTotalNumberOfMovesStockFish($match->id),
                 "yourColor" => $yourColor,
-                "continuable" => $gameContinuable,
-                "bla" => $bla
+                "continuable" => $gameContinuable
             ];
 
             $allEngineMatches[$counter] = $matchData;

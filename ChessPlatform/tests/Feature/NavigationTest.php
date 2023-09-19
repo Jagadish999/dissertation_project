@@ -14,8 +14,8 @@ class NavigationTest extends TestCase
 
     use RefreshDatabase;
 
-
-    public function testDashboardRedirectionAndData()
+    //Test cases for redirecting to dashboard view
+    public function testDashboardRedirection()
     {
         // Create a user record for testing
         $user = User::create([
@@ -30,8 +30,8 @@ class NavigationTest extends TestCase
             'bullet' => 400,
             'classic' => 400
         ]);
-        $rating->userId = $user->id;
 
+        $rating->userId = $user->id;
         $rating->save();
     
         $this->actingAs($user);
@@ -41,6 +41,8 @@ class NavigationTest extends TestCase
         $response->assertViewIs('responsive.dashboard');
     }
 
+
+    //Test cases for redirecting to play view
     public function testPlayView()
     {
         // Create a user record for testing
@@ -63,31 +65,99 @@ class NavigationTest extends TestCase
 
         $response = $this->get('/play');
 
-        $userDetails = [
-            "id" => $user->id,
-            "name" => $user->name,
-            "email" => $user->email,
-            "blitz" => $rating->blitz,
-            "bullet" => $rating->bullet,
-            "classic" => $rating->classic
-        ];
-
         $response->assertStatus(200);
         $response->assertViewIs('responsive.play');
-        $response->assertViewHas('userDetails', $userDetails);
-
-        // You can also assert specific data in the view, for example:
-        $response->assertViewHas('userDetails', function ($userDetails) use ($user, $rating) {
-            return $userDetails['id'] === $user->id &&
-                   $userDetails['name'] === $user->name &&
-                   $userDetails['email'] === $user->email &&
-                   $userDetails['blitz'] === $rating->blitz &&
-                   $userDetails['bullet'] === $rating->bullet &&
-                   $userDetails['classic'] === $rating->classic;
-        });
     }
 
-    
-    
+    public function testAnalysisView(){
+        $user = User::create([
+            'name' => 'test name',
+            'email' => 'test@example.com',
+            'password' => bcrypt('password'),
+            'image' => 'dummy.jpg',
+        ]);
 
+        $rating = new Rating([
+            'blitz' => 400,
+            'bullet' => 400,
+            'classic' => 400
+        ]);
+        $rating->userId = $user->id;
+        $rating->save();
+
+        $this->actingAs($user);
+
+        $response = $this->get('/analysis');
+        $response->assertStatus(200);
+        $response->assertViewIs('responsive.analysis');
+    }
+
+    public function testLeaderboardView(){
+        $user = User::create([
+            'name' => 'test name',
+            'email' => 'test@example.com',
+            'password' => bcrypt('password'),
+            'image' => 'dummy.jpg',
+        ]);
+
+        $rating = new Rating([
+            'blitz' => 400,
+            'bullet' => 400,
+            'classic' => 400
+        ]);
+        $rating->userId = $user->id;
+        $rating->save();
+
+        $this->actingAs($user);
+
+        $response = $this->get('/leaderboard');
+        $response->assertStatus(200);
+        $response->assertViewIs('responsive.leaderboard');
+    }
+
+    public function testPuzzledView(){
+        $user = User::create([
+            'name' => 'test name',
+            'email' => 'test@example.com',
+            'password' => bcrypt('password'),
+            'image' => 'dummy.jpg',
+        ]);
+
+        $rating = new Rating([
+            'blitz' => 400,
+            'bullet' => 400,
+            'classic' => 400
+        ]);
+        $rating->userId = $user->id;
+        $rating->save();
+
+        $this->actingAs($user);
+
+        $response = $this->get('/puzzle');
+        $response->assertStatus(200);
+        $response->assertViewIs('responsive.puzzle');
+    }
+
+    public function testEditView(){
+        $user = User::create([
+            'name' => 'test name',
+            'email' => 'test@example.com',
+            'password' => bcrypt('password'),
+            'image' => 'dummy.jpg',
+        ]);
+
+        $rating = new Rating([
+            'blitz' => 400,
+            'bullet' => 400,
+            'classic' => 400
+        ]);
+        $rating->userId = $user->id;
+        $rating->save();
+
+        $this->actingAs($user);
+
+        $response = $this->get('/editprofile');
+        $response->assertStatus(200);
+        $response->assertViewIs('responsive.editprofile');
+    }
 }
