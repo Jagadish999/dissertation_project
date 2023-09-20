@@ -31,21 +31,39 @@ class UserIntegrationTest extends TestCase
             'password' => bcrypt('password'),
             'image' => 'dummy.jpg',
         ]);
-    
+
         $rating = new Rating([
             'blitz' => 400,
             'bullet' => 400,
             'classic' => 400
         ]);
+
         $rating->userId = $user->id;
         $rating->save();
     
-        $response = $this->post('/login', [
-            'email' => $user->email,
-            'password' => 'password'
-        ]);
+        $this->actingAs($user);
+    
+        $response = $this->get('/dashboard');
+        $response->assertStatus(status:200);
+    }
 
+    public function testUserRegistration(): void
+    {
+        $userData = [
+            'name' => 'New User',
+            'email' => 'newuser@example.com',
+            'password' => 'password123',
+            'image' => 'dummy.jpg',
+        ];
+    
+        $response = $this->get('/register');
+        $response->assertStatus(200);
+    
+        $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
+    
+        $response = $this->post('/register', $userData);
         
+        $response->assertRedirect('/register');
     }
     
 }

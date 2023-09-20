@@ -22,7 +22,7 @@ class NavigationTest extends TestCase
             'name' => 'test name',
             'email' => 'test@example.com',
             'password' => bcrypt('password'),
-            'image' => 'dummy.jpg', // Provide a default image filename
+            'image' => 'dummy.jpg',
         ]);
 
         $rating = new Rating([
