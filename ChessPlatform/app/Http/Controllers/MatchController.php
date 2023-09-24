@@ -653,7 +653,7 @@ class MatchController extends Controller
     }
 
     public function recordMovesWithEngine(Request $request) {
-        $postData = $request->json()->all(); // Assuming you are receiving JSON data
+        $postData = $request->json()->all();
     
         // Extract the values from the JSON payload
         $matchNumber = $postData['matchNumber'];
@@ -676,7 +676,6 @@ class MatchController extends Controller
             'move' => $move,
         ]);
     
-        // You can also return the newly created move if needed
         return $move;
     }
 
